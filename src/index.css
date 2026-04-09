@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -57,38 +57,47 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
 @layer utilities {
   .glass {
-    background: hsla(var(--glass-bg) / 0.08);
+    background: hsla(var(--glass-bg) / 0.06);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid hsla(var(--glass-border) / 0.15);
+    border: 1px solid hsla(var(--glass-border) / 0.1);
   }
   .glass-strong {
-    background: hsla(var(--glass-bg) / 0.12);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid hsla(var(--glass-border) / 0.2);
+    background: hsla(var(--glass-bg) / 0.1);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid hsla(var(--glass-border) / 0.18);
   }
   .glow-primary {
-    box-shadow: 0 8px 40px -8px hsla(var(--glow-purple) / 0.5),
-                0 4px 20px -4px hsla(var(--glow-blue) / 0.3);
+    box-shadow: 0 8px 40px -8px hsla(var(--glow-purple) / 0.45),
+                0 4px 20px -4px hsla(var(--glow-blue) / 0.25),
+                inset 0 1px 0 0 hsla(var(--glass-border) / 0.1);
   }
   .glow-button {
-    box-shadow: 0 4px 20px -4px hsla(var(--glow-purple) / 0.6);
+    box-shadow: 0 4px 24px -4px hsla(var(--glow-purple) / 0.5);
   }
   .gradient-bg {
-    background: linear-gradient(135deg, #2A1056 0%, #150830 50%, #0D0518 100%);
+    background: linear-gradient(135deg, #2A1056 0%, #1a0a3e 30%, #110625 60%, #0D0518 100%);
+    min-height: 100vh;
   }
   .text-gradient {
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

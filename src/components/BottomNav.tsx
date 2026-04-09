@@ -12,22 +12,25 @@ const BottomNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md z-50">
-      <div className="glass-strong rounded-2xl px-2 py-2 flex items-center justify-around">
+    <nav className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md sm:max-w-lg z-50">
+      <div className="glass-strong rounded-2xl px-3 py-2.5 flex items-center justify-around shadow-2xl">
         {navItems.map(({ to, icon: Icon, label }) => {
           const isActive = location.pathname === to;
           return (
             <NavLink
               key={to}
               to={to}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-300 ${
+              className={`relative flex flex-col items-center gap-1 px-4 sm:px-6 py-2 rounded-xl transition-all duration-300 ${
                 isActive
-                  ? "text-primary glow-button bg-primary/10"
+                  ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className="text-[10px] font-medium">{label}</span>
+              {isActive && (
+                <div className="absolute inset-0 bg-primary/10 rounded-xl glow-button" />
+              )}
+              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} className="relative z-10" />
+              <span className="text-[10px] font-medium relative z-10">{label}</span>
             </NavLink>
           );
         })}

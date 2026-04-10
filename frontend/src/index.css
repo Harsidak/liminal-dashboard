@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 272 66% 7%;
+    --foreground: 0 0% 100%;
+
+    --card: 254 42% 18%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 270 30% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Brand accents mapped from #5D7CFF -> #A076FF */
+    --primary: 231 100% 68%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 252 30% 24%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 252 22% 20%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 262 83% 70%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 250 28% 28%;
+    --input: 250 28% 28%;
+    --ring: 231 100% 68%;
+
+    --radius: 1rem;
+
+    --glass-bg: 248 72% 86%;
+    --glass-border: 250 84% 76%;
+    --glow-purple: 263 100% 72%;
+    --glow-blue: 231 100% 68%;
+
+    --sidebar-background: 270 60% 4%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 252 90% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 20% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 270 20% 20%;
+    --sidebar-ring: 252 90% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    background:
+      radial-gradient(60% 45% at 10% 5%, rgba(127, 82, 255, 0.5), transparent 60%),
+      radial-gradient(58% 50% at 95% 0%, rgba(162, 111, 255, 0.4), transparent 62%),
+      linear-gradient(140deg, #1a162d 0%, #2a1056 34%, #120a24 66%, #000000 100%);
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: linear-gradient(
+      160deg,
+      hsla(var(--glass-bg) / 0.16) 0%,
+      hsla(var(--glass-bg) / 0.06) 55%,
+      hsla(var(--glass-bg) / 0.12) 100%
+    );
+    backdrop-filter: blur(26px);
+    -webkit-backdrop-filter: blur(26px);
+    border: 1px solid hsla(var(--glass-border) / 0.2);
+  }
+  .glass-strong {
+    background: linear-gradient(
+      165deg,
+      hsla(var(--glass-bg) / 0.26) 0%,
+      hsla(var(--glass-bg) / 0.12) 100%
+    );
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid hsla(var(--glass-border) / 0.28);
+  }
+  .glow-primary {
+    box-shadow: 0 8px 40px -8px hsla(var(--glow-purple) / 0.45),
+                0 4px 20px -4px hsla(var(--glow-blue) / 0.25),
+                inset 0 1px 0 0 hsla(var(--glass-border) / 0.1);
+  }
+  .glow-button {
+    box-shadow: 0 4px 24px -4px hsla(var(--glow-purple) / 0.5);
+  }
+  .gradient-bg {
+    background:
+      radial-gradient(80% 60% at 0% 0%, rgba(122, 79, 255, 0.42), transparent 62%),
+      radial-gradient(72% 58% at 100% 0%, rgba(153, 103, 255, 0.26), transparent 64%),
+      linear-gradient(135deg, #1a162d 0%, #2a1056 32%, #120a24 62%, #000000 100%);
+    min-height: 100vh;
+  }
+  .screen-frame {
+    background: linear-gradient(180deg, rgba(20, 11, 44, 0.95), rgba(13, 8, 28, 0.96));
+    border: 1px solid rgba(178, 157, 255, 0.2);
+    box-shadow:
+      0 32px 68px -28px rgba(9, 4, 22, 0.95),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}

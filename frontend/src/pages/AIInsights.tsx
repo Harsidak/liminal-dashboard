@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AppShell from "@/components/AppShell";
+import PageTransition from "@/components/PageTransition";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { BrainCircuit, TrendingDown, TrendingUp, Activity } from "lucide-react";
@@ -207,6 +208,7 @@ const AIInsights = () => {
   const riskColor = risk[0] < 30 ? "text-emerald-400" : risk[0] < 70 ? "text-amber-400" : "text-red-400";
 
   return (
+    <PageTransition>
     <AppShell>
       <div className="px-4 sm:px-6 lg:px-8 pt-6">
         <div className="flex items-center gap-2.5 mb-6">
@@ -308,6 +310,7 @@ const AIInsights = () => {
         </div>
       </div>
     </AppShell>
+    </PageTransition>
   );
 };
 

@@ -56,6 +56,7 @@ const Profile = () => (
       </div>
     </div>
   </AppShell>
+  </PageTransition>
 );
 
 export default Profile;

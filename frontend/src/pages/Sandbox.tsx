@@ -39,6 +39,7 @@ const Sandbox = () => (
       </div>
     </div>
   </AppShell>
+  </PageTransition>
 );
 
 export default Sandbox;

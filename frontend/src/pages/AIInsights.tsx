@@ -310,6 +310,7 @@ const AIInsights = () => {
         </div>
       </div>
     </AppShell>
+    </PageTransition>
   );
 };
 

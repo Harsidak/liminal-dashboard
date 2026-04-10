@@ -1,4 +1,5 @@
 import AppShell from "@/components/AppShell";
+import PageTransition from "@/components/PageTransition";
 import { Settings, CreditCard, Shield, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -9,6 +10,7 @@ const menuItems = [
 ];
 
 const Profile = () => (
+  <PageTransition>
   <AppShell>
     <div className="px-4 sm:px-6 lg:px-8 pt-6">
       <div className="glass-strong rounded-3xl p-6 sm:p-8 text-center glow-primary relative overflow-hidden">

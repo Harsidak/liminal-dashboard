@@ -1,4 +1,5 @@
 import AppShell from "@/components/AppShell";
+import PageTransition from "@/components/PageTransition";
 import { FlaskConical, Beaker, Shield, BarChart3 } from "lucide-react";
 
 const features = [
@@ -8,6 +9,7 @@ const features = [
 ];
 
 const Sandbox = () => (
+  <PageTransition>
   <AppShell>
     <div className="px-4 sm:px-6 lg:px-8 pt-6">
       <div className="flex flex-col items-center text-center mb-8">

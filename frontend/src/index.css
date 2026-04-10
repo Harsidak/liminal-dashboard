@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -57,14 +55,47 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background:
       radial-gradient(60% 45% at 10% 5%, rgba(127, 82, 255, 0.5), transparent 60%),
       radial-gradient(58% 50% at 95% 0%, rgba(162, 111, 255, 0.4), transparent 62%),
       linear-gradient(140deg, #1a162d 0%, #2a1056 34%, #120a24 66%, #000000 100%);
     min-height: 100vh;
+  }
+
+  /* Typography: Outfit for all headings and display text */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h1 { font-size: 2.5rem; font-weight: 700; }
+  h2 { font-size: 2rem; font-weight: 600; }
+  h3 { font-size: 1.5rem; font-weight: 600; }
+  h4 { font-size: 1.25rem; font-weight: 600; }
+  h5 { font-size: 1.125rem; font-weight: 600; }
+  h6 { font-size: 1rem; font-weight: 600; }
+
+  /* Apply Outfit to button text, labels, and other UI elements */
+  button, .btn, [role="button"] {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+  }
+
+  /* Apply to form labels */
+  label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+  }
+
+  /* Ensure headings in components use Outfit */
+  .text-lg, .text-xl, .text-2xl, .text-3xl, .text-4xl {
+    font-family: 'Outfit', sans-serif;
   }
 }
 

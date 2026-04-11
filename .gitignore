@@ -32,3 +32,9 @@ backend/.ruff_cache/
 backend/__pycache__/
 **/__pycache__/
 *.pyc
+# Database
+backend/*.db
+backend/*.db-journal
+.env
+__pycache__/
+*.db

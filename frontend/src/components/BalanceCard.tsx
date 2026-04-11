@@ -13,7 +13,7 @@ const actions = [
 ];
 
 const BalanceCard = () => (
-  <div className="mx-3 mt-4">
+  <div className="w-full">
     <div className="glass-strong rounded-[26px] p-4 glow-primary relative overflow-hidden">
       <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-primary/10 blur-3xl animate-pulse-glow" />
       <div className="absolute -bottom-12 -left-12 w-32 h-32 rounded-full bg-accent/10 blur-3xl animate-pulse-glow" style={{ animationDelay: "1.5s" }} />

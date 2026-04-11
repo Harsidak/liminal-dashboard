@@ -7,7 +7,7 @@ const activities = [
 ];
 
 const AssetList = () => (
-  <div className="mt-5 px-3">
+  <div className="w-full">
     <div className="mb-3">
       <h2 className="text-base font-semibold text-foreground">Top Deals</h2>
     </div>

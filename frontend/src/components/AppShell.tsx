@@ -11,18 +11,18 @@ const items = [
 
 const AppShell = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="gradient-bg min-h-screen px-3 py-4 sm:px-6 sm:py-8">
-      <div className="mx-auto w-full max-w-6xl">
-        <div className="screen-frame mx-auto min-h-[calc(100vh-2rem)] max-w-md rounded-[36px] px-3 pb-28 pt-2 sm:min-h-[720px] sm:rounded-[44px] sm:px-4">
+    <div className="gradient-bg min-h-screen">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+        <main className="relative min-h-[calc(100vh-8rem)] pb-32 lg:pb-12">
           {children}
-        </div>
+        </main>
       </div>
       <Dock 
-    items={items}
-    panelHeight={70}
-    baseItemSize={50}
-    magnification={100}
-  />
+        items={items}
+        panelHeight={70}
+        baseItemSize={50}
+        magnification={100}
+      />
     </div>
   );
 };

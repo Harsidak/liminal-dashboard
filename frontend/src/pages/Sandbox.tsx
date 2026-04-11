@@ -11,31 +11,33 @@ const features = [
 const Sandbox = () => (
   <PageTransition>
   <AppShell>
-    <div className="px-4 sm:px-6 lg:px-8 pt-6">
-      <div className="flex flex-col items-center text-center mb-8">
-        <div className="h-16 w-16 rounded-2xl bg-accent/15 flex items-center justify-center mb-4 glow-button">
-          <FlaskConical size={28} className="text-accent" />
+    <div className="pt-6">
+      <div className="flex flex-col items-center text-center mb-12">
+        <div className="h-20 w-20 rounded-2xl bg-accent/15 flex items-center justify-center mb-6 glow-button">
+          <FlaskConical size={32} className="text-accent" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">Risk Sandbox</h1>
-        <p className="text-sm text-muted-foreground max-w-xs">
-          Build and test custom risk scenarios before they hit the market.
+        <h1 className="text-3xl font-bold text-foreground mb-3">Risk Sandbox</h1>
+        <p className="text-base text-muted-foreground max-w-md">
+          Simulate market volatility, build automated hedging strategies, and run deep-risk Monte Carlo simulations in a safe environment.
         </p>
       </div>
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {features.map((f) => (
-          <div key={f.label} className="glass rounded-2xl p-4 flex items-center gap-4 transition-all duration-300 hover:glass-strong hover:translate-x-1 cursor-pointer group">
-            <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <f.icon size={20} className="text-primary" />
+          <div key={f.label} className="glass rounded-2xl p-6 flex flex-col items-start gap-4 transition-all duration-300 hover:glass-strong hover:-translate-y-1 cursor-pointer group">
+            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <f.icon size={22} className="text-primary" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{f.label}</p>
-              <p className="text-[11px] text-muted-foreground">{f.desc}</p>
+              <p className="text-base font-bold text-foreground group-hover:text-primary transition-colors mb-1">{f.label}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
             </div>
           </div>
         ))}
       </div>
-      <div className="glass rounded-2xl p-6 mt-6 text-center">
-        <p className="text-xs text-muted-foreground">🚀 Coming Q3 2026</p>
+      <div className="glass-strong rounded-2xl p-8 mt-12 text-center border-dashed border-primary/20 bg-primary/5">
+        <p className="text-sm font-semibold text-primary/80 uppercase tracking-widest animate-pulse">
+          🚀 Simulation Engine Coming Q3 2026
+        </p>
       </div>
     </div>
   </AppShell>

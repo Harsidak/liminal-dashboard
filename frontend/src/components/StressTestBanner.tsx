@@ -2,7 +2,7 @@ import { Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const StressTestBanner = () => (
-  <div className="mx-3 mt-5">
+  <div className="w-full">
     <div className="glass rounded-2xl p-5 relative overflow-hidden group hover:glass-strong transition-all duration-500 cursor-pointer">
       {/* Animated background orbs */}
       <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-accent/15 blur-2xl animate-pulse-glow" />

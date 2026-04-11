@@ -210,102 +210,119 @@ const AIInsights = () => {
   return (
     <PageTransition>
     <AppShell>
-      <div className="px-4 sm:px-6 lg:px-8 pt-6">
-        <div className="flex items-center gap-2.5 mb-6">
-          <div className="h-9 w-9 rounded-xl bg-accent/15 flex items-center justify-center">
-            <BrainCircuit size={18} className="text-accent" />
+      <div className="pt-6">
+        <div className="flex items-center gap-2.5 mb-8">
+          <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center glow-button">
+            <BrainCircuit size={20} className="text-accent" />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-bold text-foreground">AI Insights</h1>
-            <p className="text-[11px] text-muted-foreground">Powered by machine learning</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">AI Insights</h1>
+            <p className="text-xs text-muted-foreground">Predictive analytics and portfolio reasoning</p>
           </div>
         </div>
 
-        <Tabs defaultValue="performance" className="w-full">
-          <TabsList className="w-full glass rounded-xl border-0 h-11 p-1">
-            <TabsTrigger
-              value="performance"
-              className="flex-1 rounded-lg data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-none text-xs font-semibold transition-all duration-300"
-            >
-              Performance
-            </TabsTrigger>
-            <TabsTrigger
-              value="loss"
-              className="flex-1 rounded-lg data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-none text-xs font-semibold transition-all duration-300"
-            >
-              Loss Probability
-            </TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <Tabs defaultValue="performance" className="w-full">
+              <TabsList className="w-full glass rounded-xl border-0 h-12 p-1.5 mb-2">
+                <TabsTrigger
+                  value="performance"
+                  className="flex-1 rounded-lg data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-none text-sm font-semibold transition-all duration-300"
+                >
+                  Portfolio Performance
+                </TabsTrigger>
+                <TabsTrigger
+                  value="loss"
+                  className="flex-1 rounded-lg data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-none text-sm font-semibold transition-all duration-300"
+                >
+                  Risk Probability
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="performance">
-            <PerformanceChart />
-          </TabsContent>
-          <TabsContent value="loss">
-            <LossChart />
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="performance" className="mt-0">
+                <PerformanceChart />
+              </TabsContent>
+              <TabsContent value="loss" className="mt-0">
+                <LossChart />
+              </TabsContent>
+            </Tabs>
 
-        {/* Value at Risk Slider */}
-        <div className="glass rounded-2xl p-4 sm:p-5 mt-4">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-semibold text-foreground">Value at Risk</p>
-            <span className="text-sm font-bold text-primary">{risk[0]}%</span>
+            {/* Hidden on desktop, moved to sidebar */}
+            <div className="lg:hidden space-y-6">
+               <div className="glass rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-semibold text-foreground">Value at Risk</p>
+                  <span className="text-sm font-bold text-primary">{risk[0]}%</span>
+                </div>
+                <p className={`text-[11px] font-medium ${riskColor} mb-4`}>{riskLabel}</p>
+                <div className="relative h-6 flex items-center">
+                  <Slider
+                    value={risk}
+                    onValueChange={setRisk}
+                    max={100}
+                    step={1}
+                    className="[&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-primary [&_[role=slider]]:to-accent [&_[role=slider]]:border-0 [&_[role=slider]]:glow-button [&_[role=slider]]:h-5 [&_[role=slider]]:w-5"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          <p className={`text-[11px] font-medium ${riskColor} mb-4`}>{riskLabel}</p>
-          <div className="relative">
-            <div
-              className="absolute h-2 rounded-full top-[calc(50%-4px)] left-0 pointer-events-none transition-all duration-200"
-              style={{
-                width: `${risk[0]}%`,
-                background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))`,
-                boxShadow: "0 0 12px hsla(var(--primary) / 0.5)",
-              }}
-            />
-            <Slider
-              value={risk}
-              onValueChange={setRisk}
-              max={100}
-              step={1}
-              className="[&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-primary [&_[role=slider]]:to-accent [&_[role=slider]]:border-0 [&_[role=slider]]:glow-button [&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:transition-transform [&_[role=slider]]:hover:scale-125"
-            />
-          </div>
-          <div className="flex justify-between mt-2.5">
-            <span className="text-[10px] text-muted-foreground">Conservative</span>
-            <span className="text-[10px] text-muted-foreground">Aggressive</span>
-          </div>
-        </div>
 
-        {/* Recent AI Explanations */}
-        <div className="mt-6 mb-4">
-          <h2 className="text-sm font-semibold text-foreground mb-3">
-            Recent AI Explanations
-          </h2>
-          <div className="space-y-3">
-            {explanations.map((e, i) => (
-              <div
-                key={i}
-                className="glass rounded-xl p-4 transition-all duration-300 hover:glass-strong hover:translate-x-1 cursor-pointer group"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${e.color === "text-emerald-400" ? "bg-emerald-400/10" : "bg-red-400/10"}`}>
-                      <e.icon size={14} className={`${e.color}`} />
+          <div className="lg:col-span-1 space-y-6">
+            {/* Value at Risk Sidebar (Desktop Only) */}
+            <div className="hidden lg:block glass rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-base font-bold text-foreground">Value at Risk</p>
+                <span className="text-lg font-bold text-primary">{risk[0]}%</span>
+              </div>
+              <p className={`text-xs font-semibold ${riskColor} mb-6`}>{riskLabel}</p>
+              <div className="mt-4">
+                <Slider
+                  value={risk}
+                  onValueChange={setRisk}
+                  max={100}
+                  step={1}
+                  className="[&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-primary [&_[role=slider]]:to-accent [&_[role=slider]]:border-0 [&_[role=slider]]:glow-button [&_[role=slider]]:h-6 [&_[role=slider]]:w-6"
+                />
+              </div>
+              <div className="flex justify-between mt-4">
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Safe</span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Risky</span>
+              </div>
+            </div>
+
+            {/* AI Explanations */}
+            <div className="glass-strong rounded-2xl overflow-hidden">
+              <div className="p-5 border-b border-border/50">
+                <h2 className="text-base font-bold text-foreground">AI Intelligence</h2>
+                <p className="text-[10px] text-muted-foreground">Deep analysis of portfolio shifts</p>
+              </div>
+              <div className="p-2 space-y-2">
+                {explanations.map((e, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${e.color === "text-emerald-400" ? "bg-emerald-400/10" : "bg-red-400/10"}`}>
+                      <e.icon size={16} className={`${e.color}`} />
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {e.title}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-0.5">
+                        <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                          {e.title}
+                        </p>
+                        <span className="text-[9px] text-muted-foreground shrink-0 ml-2">
+                          {e.time}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
                         {e.desc}
                       </p>
                     </div>
                   </div>
-                  <span className="text-[9px] text-muted-foreground whitespace-nowrap mt-0.5">
-                    {e.time}
-                  </span>
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>

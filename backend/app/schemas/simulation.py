@@ -1,12 +1,18 @@
-# backend/app/schemas/simulation.py
 from pydantic import BaseModel
-from typing import List, Dict  
+from typing import Optional, List, Any
+from datetime import datetime
 
-class SimulationInput(BaseModel):
-    assets: List[str]
-    time_horizon_years: int
-    num_simulations: int = 1000
+class SimulationCreate(BaseModel):
+    portfolio_id: str
+    years: int = 10
 
-class SimulationOutput(BaseModel):
-    projected_returns: List[float]
-    summary_statistics: Dict[str, float] 
+class SimulationResponse(BaseModel):
+    id: str
+    portfolio_id: str
+    status: str
+    years: int
+    result: Optional[Any] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

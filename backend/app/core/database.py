@@ -1,25 +1,19 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import DeclarativeBase
+from app.core.config import settings
 
-# Use SQLite for development
-SQLALCHEMY_DATABASE_URL = "sqlite:///./liminal.db"
+engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG)
 
-# Create the database engine
-# connect_args={"check_same_thread": False} is required only for SQLite
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+AsyncSessionLocal = async_sessionmaker(
+    engine, class_=AsyncSession, expire_on_commit=False
 )
 
-# Create a SessionLocal class (a factory for new sessions)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+class Base(DeclarativeBase):
+    pass
 
-# Base class for all database models
-Base = declarative_base()
-
-# Dependency to get a database session for a single request
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()

@@ -1,40 +1,50 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, JSON, Integer, Boolean
 from sqlalchemy.orm import relationship
-from .database import Base
-from datetime import datetime
+from sqlalchemy.sql import func
+import uuid
+from app.core.database import Base
+
+def gen_uuid():
+    return str(uuid.uuid4())
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String)
-    email = Column(String, unique=True, index=True, nullable=False)
+    id = Column(String, primary_key=True, default=gen_uuid)
+    email = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # A user has one portfolio
-    portfolio = relationship("Portfolio", back_populates="user", uselist=False)
+    full_name = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    portfolios = relationship("Portfolio", back_populates="owner")
+    simulations = relationship("Simulation", back_populates="user")
 
 class Portfolio(Base):
     __tablename__ = "portfolios"
 
-    id = Column(Integer, primary_key=True, index=True)
-    balance = Column(Float, default=10000.0)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    id = Column(String, primary_key=True, default=gen_uuid)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    name = Column(String, nullable=False)
+    assets = Column(JSON, default=list)  # [{"symbol": "RELIANCE", "allocation": 40}, ...]
+    total_value = Column(Float, default=100000.0)  # virtual money in INR
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # A portfolio belongs to one user
-    user = relationship("User", back_populates="portfolio")
-    # A portfolio contains many asset holdings
-    holdings = relationship("Holding", back_populates="portfolio")
+    owner = relationship("User", back_populates="portfolios")
+    simulations = relationship("Simulation", back_populates="portfolio")
 
-class Holding(Base):
-    __tablename__ = "holdings"
+class Simulation(Base):
+    __tablename__ = "simulations"
 
-    id = Column(Integer, primary_key=True, index=True)
-    ticker = Column(String, nullable=False)
-    quantity = Column(Float, nullable=False)
-    average_price = Column(Float, nullable=False)
-    portfolio_id = Column(Integer, ForeignKey("portfolios.id"))
+    id = Column(String, primary_key=True, default=gen_uuid)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    portfolio_id = Column(String, ForeignKey("portfolios.id"), nullable=False)
+    status = Column(String, default="pending")  # pending | running | done | failed
+    years = Column(Integer, default=10)
+    result = Column(JSON, nullable=True)  # DRL sandbox result stored here
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # A holding belongs to one portfolio
-    portfolio = relationship("Portfolio", back_populates="holdings")
+    user = relationship("User", back_populates="simulations")
+    portfolio = relationship("Portfolio", back_populates="simulations")
+    

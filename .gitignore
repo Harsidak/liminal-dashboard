@@ -1,36 +1,37 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
 
-# Virtual Environment
+# Virtual environment
 .venv/
 venv/
-ENV/
 env/
 
-# Environment variables (CRITICAL: Do not leak your Gemini API key)
+# Environment variables
 .env
 
-# Local Database
+# Database
 *.db
 *.sqlite3
 
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
+# Logs
+*.log
 
-# Unit test / coverage reports
-.pytest_cache/
-.coverage
-htmlcov/
-
-# VS Code / IDE settings
-.vscode/
-.idea/
-*.swp
-
-# OS generated files
+# OS
 .DS_Store
 Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# UV
+.uv/

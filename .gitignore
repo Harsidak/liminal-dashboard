@@ -1,36 +1,89 @@
-# Byte-compiled / optimized / DLL files
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.classpath
+
+# Node.js / Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+build/
+frontend/build/
+.npm
+.node_repl_history
+.pnpm-debug.log*
+.yarn-debug.log*
+.yarn-error.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+.stylelintcache
+.vite-inspect
+.vitest
+
+# Bun
+bun.lockb
+.bun-build
+
+# Python / Backend (UV)
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Virtual Environment
 .venv/
 venv/
 ENV/
 env/
-
-# Environment variables (CRITICAL: Do not leak your Gemini API key)
-.env
-
-# Local Database
-*.db
-*.sqlite3
-
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
-
-# Unit test / coverage reports
+backend/.venv/
+backend/venv/
+backend/.python-version
 .pytest_cache/
+.tox/
+.nox/
 .coverage
 htmlcov/
+.hypothesis/
+.mypy_cache/
+.pyre/
+.pytype/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# VS Code / IDE settings
-.vscode/
-.idea/
-*.swp
+# Environment variables (CRITICAL: Do not leak secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+.secret
+.secrets
 
-# OS generated files
-.DS_Store
-Thumbs.db
+# Databases / Local storage
+*.db
+*.sqlite3
+.data/
+Documents/
+# AI / Claude
+.claude/
+.cursor/
+CLAUDE.md
+node_modules/

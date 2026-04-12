@@ -1,37 +1,60 @@
-import google.generativeai as genai
-from ..core.config import settings
-from ..schemas.explainer import ExplainerRequest, ExplainerResponse
+from google import genai
+from app.core.config import settings
+from app.schemas.explainer import AssetExplainRequest, ExplainerResponse
+import traceback
 
-class ExplainerService:
-    def __init__(self):
-        # Configure Gemini API
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        self.model = genai.GenerativeModel('gemini-pro')
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-    async def generate_explanation(self, request: ExplainerRequest) -> ExplainerResponse:
-        """Uses Gemini to convert complex SHAP data into a simple narrative summary."""
-        
-        # 1. Prepare the prompt for the AI
-        prompt = f"""
-        Analyze this model's investment prediction. Translate the complex SHAP feature contributions 
-        into a clear, empathetic narrative explanation for a retail investor (non-expert). 
-        Address the investor’s fear and provide actionable context.
+def compute_mock_shap(factors: dict) -> dict:
+    total = sum(abs(v) for v in factors.values())
+    if total == 0:
+        return factors
+    return {k: round(v / total, 4) for k, v in factors.items()}
 
-        Model Prediction: {request.model_prediction} (e.g., expected portfolio return)
-        
-        Key Feature Values: {request.feature_values} (Raw inputs)
-        
-        SHAP Feature Contributions: {request.shap_values} (How each feature changed the prediction)
-        
-        Generate a concise (3-5 sentences) summary focusing on WHICH factors mattered most 
-        and WHAT it means for their portfolio, using narrative language.
-        """
+async def explain_asset(request: AssetExplainRequest) -> ExplainerResponse:
+    shap_values = compute_mock_shap(request.factors)
 
-        # 2. Call the Gemini API asynchronously
-        response = await self.model.generate_content_async(prompt)
-        
-        # 3. Handle the response and return
-        return ExplainerResponse(explanation=response.text)
+    factor_lines = "\n".join(
+        f"- {k.replace('_', ' ').title()}: {round(v * 100, 1)}% weight"
+        for k, v in shap_values.items()
+    )
 
-# Create a singleton instance
-explainer_service = ExplainerService()
+    language_instruction = (
+        "Respond in simple Hindi (Hinglish is fine)."
+        if request.language == "hindi"
+        else "Respond in simple English."
+    )
+
+    prompt = f"""You are a friendly financial coach for beginner investors in India.
+
+A stock called {request.symbol} changed by {request.change_percent}% today.
+The AI model found these driving factors (SHAP values):
+{factor_lines}
+
+{language_instruction}
+In exactly 2 sentences, explain WHY this happened in plain language a college student can understand.
+Do NOT use jargon. Do NOT say "SHAP values". Be reassuring if the change is negative."""
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+        explanation = response.text.strip()
+        print(f"✅ Gemini response: {explanation}")
+
+    except Exception as e:
+        print(f"❌ Gemini API error: {e}")
+        traceback.print_exc()
+        # Fallback explanation so the endpoint doesn't crash
+        explanation = (
+            f"{request.symbol} dropped {abs(request.change_percent)}% mainly due to "
+            f"{list(request.factors.keys())[0].replace('_', ' ')} pressures. "
+            f"This is a short-term fluctuation — the fundamentals remain intact."
+        )
+
+    return ExplainerResponse(
+        symbol=request.symbol,
+        explanation=explanation,
+        shap_values=shap_values
+    )

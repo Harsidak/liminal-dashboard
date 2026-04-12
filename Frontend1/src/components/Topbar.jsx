@@ -14,7 +14,7 @@ const NOTIFICATIONS = [
   { icon: '📈', color: 'rgba(0,229,160,0.1)', title: 'Milestone Reached', titleColor: 'var(--green)', sub: 'Portfolio up 12.4% vs cash baseline', time: '1 hr ago' },
 ];
 
-export default function Topbar({ activeTab, setActiveTab, openAI }) {
+export default function Topbar({ activeTab, setActiveTab, openAI, theme, toggleTheme, onLogout }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifSeen, setNotifSeen] = useState(false);
 
@@ -47,6 +47,17 @@ export default function Topbar({ activeTab, setActiveTab, openAI }) {
         <div className="sebi-badge">SEBI 2026</div>
         <div className="live-badge"><div className="live-dot" />LIVE SIM</div>
 
+        {/* Theme Toggle */}
+        <button
+          className="icon-btn"
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          style={{ fontSize: 14, width: 29, height: 29 }}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+
+        {/* Notifications */}
         <div style={{ position: 'relative' }}>
           <button className="notif-btn" onClick={() => { setNotifOpen(o => !o); setNotifSeen(true); }}>
             🔔
@@ -71,6 +82,16 @@ export default function Topbar({ activeTab, setActiveTab, openAI }) {
             </div>
           )}
         </div>
+
+        {/* Logout */}
+        <button
+          className="icon-btn"
+          onClick={onLogout}
+          title="Sign out"
+          style={{ fontSize: 13, width: 29, height: 29 }}
+        >
+          ⏏
+        </button>
 
         <div className="user-avatar" title="Arjun Kumar">AK</div>
       </div>

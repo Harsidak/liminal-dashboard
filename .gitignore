@@ -1,37 +1,89 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.egg-info/
-dist/
-build/
-
-# Virtual environment
-.venv/
-venv/
-env/
-
-# Environment variables
-.env
-
-# Database
-*.db
-*.sqlite3
-
-# Logs
-*.log
-
-# OS
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# IDE
+# IDE / Editors
 .vscode/
 .idea/
-*.suo
-*.user
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.classpath
 
-# UV
-.uv/
+# Node.js / Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+build/
+frontend/build/
+.npm
+.node_repl_history
+.pnpm-debug.log*
+.yarn-debug.log*
+.yarn-error.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+.stylelintcache
+.vite-inspect
+.vitest
+
+# Bun
+bun.lockb
+.bun-build
+
+# Python / Backend (UV)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+backend/.venv/
+backend/venv/
+backend/.python-version
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+htmlcov/
+.hypothesis/
+.mypy_cache/
+.pyre/
+.pytype/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environment variables (CRITICAL: Do not leak secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+.secret
+.secrets
+
+# Databases / Local storage
+*.db
+*.sqlite3
+.data/
+Documents/
+# AI / Claude
+.claude/
+.cursor/
+CLAUDE.md
+node_modules/

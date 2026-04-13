@@ -1,84 +1,137 @@
 import AppShell from "@/components/AppShell";
 import PageTransition from "@/components/PageTransition";
-import { Settings, CreditCard, Shield, ChevronRight } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import GradientText from "@/components/GradientText";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { getCASUploads } from "@/lib/api";
+import { useState, useEffect } from "react";
+import {
+  User, Mail, CreditCard, LogOut, FileText, CheckCircle2, XCircle, Clock,
+} from "lucide-react";
 
-const menuItems = [
-  { icon: CreditCard, label: "Subscription", desc: "Liminal Pro — Active" },
-  { icon: Shield, label: "Security", desc: "2FA enabled" },
-  { icon: Settings, label: "Settings", desc: "Notifications, theme" },
-];
+const Profile = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [uploads, setUploads] = useState<Array<{
+    id: string;
+    filename: string;
+    status: string;
+    holdings_count: number;
+    upload_date: string;
+  }>>([]);
 
-const Profile = () => (
-  <PageTransition>
-  <AppShell>
-    <div className="pt-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="lg:col-span-1">
-          <div className="glass-strong rounded-3xl p-8 text-center glow-primary relative overflow-hidden h-full flex flex-col items-center justify-center min-h-[400px]">
-            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-primary/10 blur-3xl animate-pulse-glow" />
-            <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-accent/10 blur-3xl animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
-            
-            <Avatar className="h-24 w-24 mx-auto mb-6 ring-4 ring-primary/20 relative shadow-2xl">
-              <AvatarFallback className="bg-gradient-to-br from-primary/40 to-accent/40 text-primary font-bold text-3xl">
-                JD
-              </AvatarFallback>
-            </Avatar>
-            <h1 className="text-2xl font-bold text-foreground mb-1">John Doe</h1>
-            <p className="text-sm font-medium text-primary/80 mb-8 uppercase tracking-widest">Liminal Pro Member</p>
-            
-            <div className="grid grid-cols-3 w-full gap-4 px-2">
-              <div className="text-center">
-                <p className="text-xl font-bold text-foreground">3</p>
-                <p className="text-[10px] text-muted-foreground uppercase">Assets</p>
-              </div>
-              <div className="text-center border-x border-border/50">
-                <p className="text-xl font-bold text-emerald-400">+3.2%</p>
-                <p className="text-[10px] text-muted-foreground uppercase">Today</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-foreground">12</p>
-                <p className="text-[10px] text-muted-foreground uppercase">Insights</p>
-              </div>
+  useEffect(() => {
+    getCASUploads().then(setUploads).catch(() => {});
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  return (
+    <PageTransition>
+      <AppShell>
+        <div className="pt-6 max-w-2xl mx-auto">
+          {/* Profile Header */}
+          <div className="text-center mb-8">
+            <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-[#6366F1]/30 to-[#8B5CF6]/30 flex items-center justify-center mx-auto mb-4 ring-2 ring-[#8B5CF6]/30">
+              <span className="text-2xl font-bold text-white">
+                {user?.full_name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "??"}
+              </span>
             </div>
-
-            <button className="mt-8 w-full glass hover:glass-strong rounded-xl py-3 text-xs font-bold text-foreground transition-all duration-300">
-              Edit Profile
-            </button>
+            <GradientText
+              className="text-xl font-bold mb-1"
+              colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
+              animationSpeed={8}
+            >
+              {user?.full_name || "User"}
+            </GradientText>
+            <p className="text-xs text-[#9CA3AF]">{user?.email}</p>
           </div>
-        </div>
 
-        <div className="lg:col-span-2">
-          <h2 className="text-lg font-bold text-foreground mb-4 px-1">Account & Security</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {menuItems.map((m) => (
-              <button key={m.label} className="w-full glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 hover:glass-strong hover:-translate-y-1 group border-l-4 border-l-transparent hover:border-l-primary">
-                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <m.icon size={20} className="text-primary group-hover:scale-110 transition-transform" />
+          {/* Account Details */}
+          <div className="glass-strong rounded-2xl overflow-hidden mb-6">
+            <div className="p-5 border-b border-white/5">
+              <h3 className="text-base font-bold text-white">Account Details</h3>
+            </div>
+            <div className="p-2">
+              {[
+                { icon: User, label: "Full Name", value: user?.full_name || "Not set" },
+                { icon: Mail, label: "Email", value: user?.email || "—" },
+                { icon: CreditCard, label: "PAN Status", value: user?.has_pan ? "Verified ✓" : "Not set" },
+                { icon: Clock, label: "Member Since", value: user?.created_at ? new Date(user.created_at).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" }) : "—" },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
+                      <Icon size={14} className="text-[#8B5CF6]" />
+                    </div>
+                    <p className="text-xs text-[#9CA3AF]">{label}</p>
+                  </div>
+                  <p className="text-xs text-white font-medium">{value}</p>
                 </div>
-                <div className="text-left flex-1">
-                  <p className="text-base font-bold text-foreground group-hover:text-primary transition-colors">{m.label}</p>
-                  <p className="text-xs text-muted-foreground">{m.desc}</p>
-                </div>
-                <ChevronRight size={18} className="text-muted-foreground group-hover:text-primary transition-all group-hover:translate-x-1" />
-              </button>
-            ))}
-            <button className="w-full glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 hover:glass-strong hover:-translate-y-1 group border-l-4 border-l-transparent hover:border-l-destructive/50">
-              <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
-                <Shield size={20} className="text-destructive" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="text-base font-bold text-foreground group-hover:text-destructive transition-colors">Sign Out</p>
-                <p className="text-xs text-muted-foreground">Logout from all devices</p>
-              </div>
-              <ChevronRight size={18} className="text-muted-foreground" />
-            </button>
+              ))}
+            </div>
           </div>
+
+          {/* Upload History */}
+          <div className="glass-strong rounded-2xl overflow-hidden mb-6">
+            <div className="p-5 border-b border-white/5">
+              <h3 className="text-base font-bold text-white">CAS Upload History</h3>
+              <p className="text-[10px] text-[#9CA3AF]">{uploads.length} uploads</p>
+            </div>
+            <div className="p-2">
+              {uploads.length === 0 ? (
+                <p className="text-sm text-[#9CA3AF] text-center py-6">No CAS uploads yet</p>
+              ) : (
+                uploads.map((u) => (
+                  <div key={u.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
+                        u.status === "parsed" ? "bg-emerald-400/10" : "bg-red-400/10"
+                      }`}>
+                        {u.status === "parsed" ? (
+                          <CheckCircle2 size={14} className="text-emerald-400" />
+                        ) : (
+                          <XCircle size={14} className="text-red-400" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <FileText size={12} className="text-[#9CA3AF]" />
+                          <p className="text-xs font-medium text-white">{u.filename}</p>
+                        </div>
+                        <p className="text-[10px] text-[#9CA3AF]">
+                          {new Date(u.upload_date).toLocaleDateString("en-IN")} · {u.holdings_count} holdings
+                        </p>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full ${
+                      u.status === "parsed"
+                        ? "bg-emerald-400/10 text-emerald-400"
+                        : "bg-red-400/10 text-red-400"
+                    }`}>
+                      {u.status}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="w-full p-3 rounded-xl glass hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 transition-all flex items-center justify-center gap-2 text-[#9CA3AF] hover:text-red-400"
+          >
+            <LogOut size={16} />
+            <span className="text-sm font-semibold">Sign Out</span>
+          </button>
         </div>
-      </div>
-    </div>
-  </AppShell>
-  </PageTransition>
-);
+      </AppShell>
+    </PageTransition>
+  );
+};
 
 export default Profile;

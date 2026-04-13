@@ -19,37 +19,37 @@ const AppShell = ({ children }: { children: ReactNode }) => {
       icon: <LayoutDashboard size={18} />,
       label: "Dashboard",
       onClick: () => navigate("/"),
-      isActive: location.pathname === "/",
+      className: location.pathname === "/" ? "dock-active" : "",
     },
     {
       icon: <PieChart size={18} />,
       label: "Portfolio",
       onClick: () => navigate("/portfolio"),
-      isActive: location.pathname === "/portfolio",
+      className: location.pathname === "/portfolio" ? "dock-active" : "",
     },
     {
       icon: <BarChart3 size={18} />,
       label: "Analytics",
       onClick: () => navigate("/analytics"),
-      isActive: location.pathname === "/analytics",
+      className: location.pathname === "/analytics" ? "dock-active" : "",
     },
     {
       icon: <BrainCircuit size={18} />,
       label: "XAI",
       onClick: () => navigate("/ai-insights"),
-      isActive: location.pathname === "/ai-insights",
+      className: location.pathname === "/ai-insights" ? "dock-active" : "",
     },
     {
       icon: <Upload size={18} />,
       label: "Upload",
       onClick: () => navigate("/upload"),
-      isActive: location.pathname === "/upload",
+      className: location.pathname === "/upload" ? "dock-active" : "",
     },
     {
       icon: <User size={18} />,
       label: "Profile",
       onClick: () => navigate("/profile"),
-      isActive: location.pathname === "/profile",
+      className: location.pathname === "/profile" ? "dock-active" : "",
     },
   ];
 

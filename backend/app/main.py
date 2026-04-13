@@ -10,7 +10,7 @@ from app.api.v1.routes import router
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("✅ Database tables created")
+    print("[OK] Database tables created")
     yield
     await engine.dispose()
 
@@ -34,7 +34,7 @@ app.include_router(router, prefix="/api/v1")
 
 @app.get("/")
 async def root():
-    return {"message": f"{settings.APP_NAME} is running 🚀", "docs": "/docs"}
+    return {"message": f"{settings.APP_NAME} is running", "docs": "/docs"}
 
 @app.get("/health")
 async def health():

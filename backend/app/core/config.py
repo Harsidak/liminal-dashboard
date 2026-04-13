@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""         
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     ALGORITHM: str = "HS256"
+    UPLOAD_DIR: str = "./uploads"    # Directory for CAS PDF uploads
 
     class Config:
         env_file = ".env"

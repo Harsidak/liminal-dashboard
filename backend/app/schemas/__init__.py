@@ -1,25 +1,46 @@
-from pydantic import BaseModel, EmailStr  
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import datetime
+import re
 
 # --- Auth schemas ---
 class UserRegister(BaseModel):
     email: EmailStr         
     password: str
     full_name: Optional[str] = None
+    pan_card: str  # PAN card number (format: AAAAA0000A)
+
+    @field_validator("pan_card")
+    @classmethod
+    def validate_pan(cls, v: str) -> str:
+        v = v.strip().upper()
+        if not re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]$", v):
+            raise ValueError("PAN must be in format AAAAA0000A (e.g., ABCDE1234F)")
+        return v
 
 class UserLogin(BaseModel):
     email: EmailStr          
     password: str
+    pan_card: str  # Required for CAS PDF decryption
+
+    @field_validator("pan_card")
+    @classmethod
+    def validate_pan(cls, v: str) -> str:
+        v = v.strip().upper()
+        if not re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]$", v):
+            raise ValueError("PAN must be in format AAAAA0000A")
+        return v
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    user: Optional["UserResponse"] = None
 
 class UserResponse(BaseModel):
     id: str
     email: EmailStr          
     full_name: Optional[str]
+    has_pan: bool = True
     created_at: datetime
 
     class Config:

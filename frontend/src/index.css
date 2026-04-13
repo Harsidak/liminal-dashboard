@@ -4,26 +4,35 @@
 
 @layer base {
   :root {
-    --background: 272 66% 7%;
-    --foreground: 0 0% 100%;
+    /* === LIMINAL AI COLOR SYSTEM ===
+       Deep Background: #2E1E5B → #0B0914
+       Glass Cards: rgba(255,255,255,0.05) → rgba(255,255,255,0.1)
+       Neon Buttons: #6366F1 → #8B5CF6
+       Primary Text: #FFFFFF
+       Secondary Text: #9CA3AF
+    */
+
+    --background: 256 52% 24%;    /* #2E1E5B base */
+    --foreground: 0 0% 100%;      /* #FFFFFF */
 
     --card: 254 42% 18%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 270 30% 12%;
+    --popover: 260 40% 10%;
     --popover-foreground: 0 0% 100%;
 
-    /* Brand accents mapped from #5D7CFF -> #A076FF */
-    --primary: 231 100% 68%;
+    /* Neon action: #6366F1 (Indigo) */
+    --primary: 239 84% 67%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 252 30% 24%;
     --secondary-foreground: 0 0% 90%;
 
     --muted: 252 22% 20%;
-    --muted-foreground: 240 5% 65%;
+    --muted-foreground: 220 9% 62%; /* #9CA3AF */
 
-    --accent: 262 83% 70%;
+    /* Neon accent: #8B5CF6 (Bright Purple) */
+    --accent: 258 90% 66%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -31,14 +40,18 @@
 
     --border: 250 28% 28%;
     --input: 250 28% 28%;
-    --ring: 231 100% 68%;
+    --ring: 239 84% 67%;
 
     --radius: 1rem;
 
     --glass-bg: 248 72% 86%;
     --glass-border: 250 84% 76%;
-    --glow-purple: 263 100% 72%;
-    --glow-blue: 231 100% 68%;
+    --glow-purple: 258 90% 66%;
+    --glow-blue: 239 84% 67%;
+
+    /* Emerald for positive values */
+    --emerald: 160 84% 39%;
+    --rose: 0 84% 60%;
 
     --sidebar-background: 270 60% 4%;
     --sidebar-foreground: 0 0% 100%;
@@ -59,10 +72,8 @@
   body {
     @apply text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background:
-      radial-gradient(60% 45% at 10% 5%, rgba(127, 82, 255, 0.5), transparent 60%),
-      radial-gradient(58% 50% at 95% 0%, rgba(162, 111, 255, 0.4), transparent 62%),
-      linear-gradient(140deg, #1a162d 0%, #2a1056 34%, #120a24 66%, #000000 100%);
+    /* Deep Background: radial gradient #2E1E5B center → #0B0914 edges */
+    background: radial-gradient(ellipse at center, #2E1E5B 0%, #1a1035 35%, #0B0914 80%);
     min-height: 100vh;
   }
 
@@ -103,37 +114,34 @@
   .glass {
     background: linear-gradient(
       160deg,
-      hsla(var(--glass-bg) / 0.16) 0%,
-      hsla(var(--glass-bg) / 0.06) 55%,
-      hsla(var(--glass-bg) / 0.12) 100%
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.02) 55%,
+      rgba(255, 255, 255, 0.06) 100%
     );
     backdrop-filter: blur(26px);
     -webkit-backdrop-filter: blur(26px);
-    border: 1px solid hsla(var(--glass-border) / 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
   .glass-strong {
     background: linear-gradient(
       165deg,
-      hsla(var(--glass-bg) / 0.26) 0%,
-      hsla(var(--glass-bg) / 0.12) 100%
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%
     );
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    border: 1px solid hsla(var(--glass-border) / 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
   .glow-primary {
-    box-shadow: 0 8px 40px -8px hsla(var(--glow-purple) / 0.45),
-                0 4px 20px -4px hsla(var(--glow-blue) / 0.25),
-                inset 0 1px 0 0 hsla(var(--glass-border) / 0.1);
+    box-shadow: 0 8px 40px -8px rgba(139, 92, 246, 0.45),
+                0 4px 20px -4px rgba(99, 102, 241, 0.25),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
   }
   .glow-button {
-    box-shadow: 0 4px 24px -4px hsla(var(--glow-purple) / 0.5);
+    box-shadow: 0 4px 24px -4px rgba(139, 92, 246, 0.5);
   }
   .gradient-bg {
-    background:
-      radial-gradient(80% 60% at 0% 0%, rgba(122, 79, 255, 0.42), transparent 62%),
-      radial-gradient(72% 58% at 100% 0%, rgba(153, 103, 255, 0.26), transparent 64%),
-      linear-gradient(135deg, #1a162d 0%, #2a1056 32%, #120a24 62%, #000000 100%);
+    background: radial-gradient(ellipse at center, #2E1E5B 0%, #1a1035 35%, #0B0914 80%);
     min-height: 100vh;
   }
   .screen-frame {
@@ -144,10 +152,19 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
   .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+  .neon-button {
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    box-shadow: 0 4px 24px -4px rgba(139, 92, 246, 0.6);
+    transition: all 0.3s ease;
+  }
+  .neon-button:hover {
+    box-shadow: 0 6px 32px -4px rgba(139, 92, 246, 0.8);
+    transform: translateY(-1px);
   }
   .scrollbar-none {
     -ms-overflow-style: none;

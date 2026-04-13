@@ -484,7 +484,7 @@ Liminal AI is designed to evolve from a portfolio viewer into a **full-spectrum 
 ---
 
 ## 🧪 Sandbox Repository
-
+We are currently experimenting with out Sanbox model `TimeGAN` for synthetic market data generation
 For advanced experimentation with AI models and financial analytics pipelines, refer to our research sandbox:
 
 **🔗 [github.com/Harsidak/liminal-sandbox](https://github.com/Harsidak/liminal-sandbox)**

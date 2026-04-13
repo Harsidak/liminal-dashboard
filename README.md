@@ -147,6 +147,34 @@ Value-at-Risk (VaR) slider that shows users the probability distribution of pote
 
 ---
 
+## 📸 Platform Demo & Screenshots
+
+### 🔐 Authentication & Access
+Experience a secure, glassmorphism-styled entry point. Liminal AI uses PAN-linked authentication to ensure your data stays private and your sessions remain secure.
+![Login Page](Documents/Usage/LOGN%20PAGE.png)
+
+### 📊 Unified Portfolio Intelligence
+Your entire portfolio, visualized. Track your total net worth, real-time P&L, and sector distributions in one high-fidelity dashboard.
+![Portfolio Overview](Documents/Usage/PORTFOLIO%20OVERVIEW.png)
+
+### 📈 Deep Stock Analytics
+Dive into individual stock performance with interactive charts and historical data. Understand trends and volatility at a glance.
+![Portfolio Analytics](Documents/Usage/PORTFOLIO%20ANALYTICS.png)
+
+### 🧠 Explainable AI (XAI) Insights
+Go beyond the "what" and understand the "why". Our AI translation layer explains market movements in plain human language.
+![XAI Insights](Documents/Usage/XaI%20ANALYTICS.png)
+
+### 📄 Seamless CAS Ingestion
+Transform your official CDSL/NSDL statements into actionable data in seconds. Simple, secure, and universal.
+![Uploading CAS PDF](Documents/Usage/UPLOADING%20CAS%20PDF.png)
+
+### 👤 User Profile & Security Control
+Manage your identity and track your CAS upload history. Complete transparency on your data and security status.
+![Profile Information](Documents/Usage/PROFILE%20INFORMATION.png)
+
+---
+
 ## 🏗️ System Architecture
 
 ### High-Level Component Diagram

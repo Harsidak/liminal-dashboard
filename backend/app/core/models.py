@@ -22,6 +22,7 @@ class User(Base):
     simulations = relationship("Simulation", back_populates="user")
     cas_uploads = relationship("CASUpload", back_populates="user")
     holdings = relationship("Holding", back_populates="user")
+    watchlist = relationship("Watchlist", uselist=False, back_populates="user", cascade="all, delete-orphan")
 
 class Portfolio(Base):
     __tablename__ = "portfolios"
@@ -86,3 +87,23 @@ class Holding(Base):
 
     user = relationship("User", back_populates="holdings")
     cas_upload = relationship("CASUpload", back_populates="holdings")
+
+class Watchlist(Base):
+    __tablename__ = "watchlists"
+
+    id = Column(String, primary_key=True, default=gen_uuid)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, unique=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="watchlist")
+    items = relationship("WatchlistItem", back_populates="watchlist", cascade="all, delete-orphan")
+
+class WatchlistItem(Base):
+    __tablename__ = "watchlist_items"
+
+    id = Column(String, primary_key=True, default=gen_uuid)
+    watchlist_id = Column(String, ForeignKey("watchlists.id"), nullable=False)
+    symbol = Column(String, nullable=False)
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    watchlist = relationship("Watchlist", back_populates="items")

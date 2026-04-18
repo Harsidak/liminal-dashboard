@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
     GEMINI_API_KEY: str = ""         
     GROQ_API_KEY: str = ""
+    NEWS_API: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     ALGORITHM: str = "HS256"
     UPLOAD_DIR: str = "./uploads"    # Directory for CAS PDF uploads

@@ -218,6 +218,46 @@ export async function explainAsset(data: {
   }>("/explain", { method: "POST", body: data });
 }
 
+// ─── NEW: MARKET, NEWS & WATCHLIST ─────────────────────────────────────────
+
+export async function getMarketSnapshot() {
+  return request<StockPrice[]>("/market/snapshot");
+}
+
+export async function getMarketMovers() {
+  return request<{ gainers: StockPrice[]; losers: StockPrice[] }>("/market/movers");
+}
+
+export type NewsArticle = {
+  title: string;
+  description: string;
+  url: string;
+  source: { name: string };
+};
+
+export async function getNews() {
+  return request<NewsArticle[]>("/news");
+}
+
+export async function getWatchlist() {
+  return request<StockPrice[]>("/watchlist");
+}
+
+export async function addToWatchlist(symbol: string) {
+  return request<{ message: string; symbol: string }>("/watchlist", {
+    method: "POST",
+    body: { symbol },
+  });
+}
+
+export async function removeFromWatchlist(symbol: string) {
+  return request<{ message: string; symbol: string }>(`/watchlist/${symbol}`, {
+    method: "DELETE",
+  });
+}
+
+// ─── EXPORTS ──────────────────────────────────────────────────────────────────
+
 export default {
   register,
   login,
@@ -230,4 +270,10 @@ export default {
   getStockPrice,
   getStockHistory,
   explainAsset,
+  getMarketSnapshot,
+  getMarketMovers,
+  getNews,
+  getWatchlist,
+  addToWatchlist,
+  removeFromWatchlist,
 };

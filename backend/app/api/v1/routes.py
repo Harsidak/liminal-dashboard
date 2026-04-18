@@ -24,6 +24,12 @@ from app.services.simulation_service import create_simulation, get_simulation
 from app.services.cas_parser import decrypt_and_parse
 from app.services.stock_service import get_stock_price, get_stock_history, get_batch_prices, update_holding_prices
 from app.services.analytics_service import get_portfolio_summary, get_allocation
+from app.services.news_service import fetch_market_news
+from app.services.watchlist_service import get_watchlist_items, add_to_watchlist, remove_from_watchlist
+from pydantic import BaseModel
+
+class WatchlistAddRequest(BaseModel):
+    symbol: str
 
 router = APIRouter()
 bearer_scheme = HTTPBearer()
@@ -394,3 +400,60 @@ async def panic_check(
         "block_trade": False,
         "message": "You're making a calm decision. Proceed when ready."
     }
+
+# ─── MARKET DATA, NEWS & WATCHLIST ───────────────────────────────────────────
+
+@router.get("/market/snapshot")
+async def market_snapshot():
+    # NIFTY 50, SENSEX, BANK NIFTY
+    symbols = ["^NSEI", "^BSESN", "^NSEBANK"]
+    results, _ = await get_batch_prices(symbols)
+    return results
+
+@router.get("/market/movers")
+async def market_movers():
+    # For a real app, query NSE top gainers/losers API.
+    # Here, we'll check a preset top liquid stocks.
+    symbols = ["RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "ICICIBANK.NS", "SBIN.NS", "BHARTIARTL.NS"]
+    results, _ = await get_batch_prices(symbols)
+    
+    # Sort by percentage change
+    sorted_res = sorted(results, key=lambda x: x.change_percent, reverse=True)
+    return {
+        "gainers": sorted_res[:3],
+        "losers": sorted_res[-3:]
+    }
+
+@router.get("/news")
+async def market_news():
+    return await fetch_market_news()
+
+@router.get("/watchlist")
+async def get_watchlist(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    symbols = await get_watchlist_items(db, current_user.id)
+    if not symbols:
+        return []
+    results, _ = await get_batch_prices(symbols)
+    return results
+
+@router.post("/watchlist")
+async def add_watchlist(
+    body: WatchlistAddRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    added = await add_to_watchlist(db, current_user.id, body.symbol.upper())
+    if not added:
+        raise HTTPException(status_code=400, detail="Symbol already in watchlist")
+    return {"message": "Added successfully", "symbol": body.symbol.upper()}
+
+@router.delete("/watchlist/{symbol}")
+async def remove_watchlist(
+    symbol: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    removed = await remove_from_watchlist(db, current_user.id, symbol.upper())
+    if not removed:
+        raise HTTPException(status_code=404, detail="Symbol not in watchlist")
+    return {"message": "Removed successfully", "symbol": symbol.upper()}

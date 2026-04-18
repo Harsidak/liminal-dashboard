@@ -3,299 +3,249 @@ import AppShell from "@/components/AppShell";
 import PageTransition from "@/components/PageTransition";
 import GradientText from "@/components/GradientText";
 import BorderGlow from "@/components/BorderGlow";
-import { getPortfolioSummary, getHoldings, type PortfolioSummaryData, type HoldingData } from "@/lib/api";
+import api from "@/lib/api";
+import { type StockPrice, type NewsArticle } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
-import { TrendingUp, TrendingDown, Wallet, BarChart3, ArrowUpRight, ArrowDownRight, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
-} from "recharts";
+import { Search, TrendingUp, TrendingDown, Clock, Newspaper, ArrowRight, Activity, Zap } from "lucide-react";
 
-const COLORS = ["#6366F1", "#8B5CF6", "#A78BFA", "#C4B5FD", "#818CF8", "#7C3AED", "#5B21B6", "#4C1D95"];
+const SearchBar = ({ onSearch }: { onSearch: (val: string) => void }) => {
+  const [val, setVal] = useState("");
+  return (
+    <div className="relative w-full max-w-xl mx-auto mb-8 group">
+      <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-[#9CA3AF] group-focus-within:text-[#8B5CF6] transition-colors">
+        <Search size={20} />
+      </div>
+      <input
+        type="text"
+        placeholder="What are you looking for today?"
+        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-[#8B5CF6]/50 transition-all shadow-xl backdrop-blur-md"
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && val.trim()) {
+            onSearch(val.trim());
+          }
+        }}
+      />
+    </div>
+  );
+};
+
+const MarketSnapshotCard = ({ title, data }: { title: string, data?: StockPrice }) => {
+  if (!data) return <div className="glass rounded-2xl p-4 animate-pulse h-28" />;
+  const isPositive = data.change >= 0;
+  return (
+    <div className="glass hover:bg-white/10 transition-colors rounded-2xl p-4 cursor-pointer group">
+      <p className="text-sm font-semibold text-[#9CA3AF] mb-2 group-hover:text-white transition-colors">{title}</p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h3 className="text-xl font-bold text-white mb-1">
+            {data.current_price.toLocaleString("en-IN")}
+          </h3>
+          <p className={`text-xs font-semibold flex items-center gap-1 ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
+            {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            {data.change.toLocaleString("en-IN")} ({data.change_percent.toFixed(2)}%)
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const WatchlistSection = ({ items, onRemove, navigate }: { items: StockPrice[], onRemove: (s: string) => void, navigate: any }) => {
+  if (items.length === 0) return null;
+  return (
+    <div className="mb-10">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Clock size={18} className="text-[#8B5CF6]" /> Your Watchlist</h2>
+      </div>
+      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
+        {items.map(item => {
+          const isPositive = item.change >= 0;
+          return (
+            <div 
+              key={item.symbol} 
+              onClick={() => navigate(`/stock/${item.symbol}`)}
+              className="glass rounded-xl p-4 min-w-[200px] shrink-0 cursor-pointer hover:scale-[1.02] transition-transform relative group"
+            >
+              <button 
+                onClick={(e) => { e.stopPropagation(); onRemove(item.symbol); }}
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-[#9CA3AF] hover:text-white transition-opacity bg-black/40 rounded-full"
+              >
+                ×
+              </button>
+              <h3 className="font-bold text-white truncate max-w-[150px]">{item.name || item.symbol.replace(".NS", "")}</h3>
+              <p className="text-sm text-[#9CA3AF] mt-1">₹{item.current_price.toLocaleString("en-IN")}</p>
+              <p className={`text-xs mt-2 ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
+                {isPositive ? "+" : ""}{item.change_percent.toFixed(2)}%
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const MoverCard = ({ data, label, navigate }: { data: StockPrice, label: string, navigate: any }) => {
+  const isPositive = data.change >= 0;
+  return (
+    <div onClick={() => navigate(`/stock/${data.symbol}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer group">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${isPositive ? "bg-emerald-400/10" : "bg-red-400/10"}`}>
+          {isPositive ? <TrendingUp size={18} className="text-emerald-400" /> : <TrendingDown size={18} className="text-red-400" />}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-white truncate group-hover:text-[#8B5CF6] transition-colors">{data.name || data.symbol.replace(".NS", "")}</p>
+          <p className="text-[10px] text-[#9CA3AF] truncate">{data.symbol.replace(".NS", "")}</p>
+        </div>
+      </div>
+      <div className="text-right shrink-0 ml-2">
+        <p className="text-sm font-bold text-white">₹{data.current_price.toLocaleString("en-IN")}</p>
+        <p className={`text-xs font-medium ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
+          {isPositive ? "+" : ""}{data.change_percent.toFixed(2)}%
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [summary, setSummary] = useState<PortfolioSummaryData | null>(null);
-  const [holdings, setHoldings] = useState<HoldingData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [snapshot, setSnapshot] = useState<StockPrice[]>([]);
+  const [movers, setMovers] = useState<{ gainers: StockPrice[], losers: StockPrice[] } | null>(null);
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [watchlist, setWatchlist] = useState<StockPrice[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAll = async () => {
       try {
-        const [s, h] = await Promise.all([getPortfolioSummary(), getHoldings()]);
-        setSummary(s);
-        setHoldings(h);
-      } catch {
-        // User may not have uploaded CAS yet
-      } finally {
-        setLoading(false);
+        const [snapRes, movRes, newsRes, watchRes] = await Promise.all([
+          api.getMarketSnapshot(),
+          api.getMarketMovers(),
+          api.getNews(),
+          api.getWatchlist().catch(() => []) // ok if empty
+        ]);
+        setSnapshot(snapRes || []);
+        setMovers(movRes || null);
+        setNews(newsRes || []);
+        setWatchlist(watchRes || []);
+      } catch (err) {
+        console.error(err);
       }
     };
-    fetchData();
+    fetchAll();
   }, []);
 
-  const sectorData = holdings.reduce((acc, h) => {
-    const sector = h.sector || "Other";
-    const existing = acc.find(a => a.name === sector);
-    const val = h.market_value || 0;
-    if (existing) existing.value += val;
-    else acc.push({ name: sector, value: val });
-    return acc;
-  }, [] as { name: string; value: number }[]);
+  const handleSearch = (symbol: string) => {
+    navigate(`/stock/${symbol.toUpperCase()}`);
+  };
 
-  const topHoldings = [...holdings]
-    .sort((a, b) => (b.market_value || 0) - (a.market_value || 0))
-    .slice(0, 5);
+  const removeFromWatchlist = async (symbol: string) => {
+    try {
+      await api.removeFromWatchlist(symbol);
+      setWatchlist(w => w.filter(x => x.symbol !== symbol));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-  // Generate mock performance timeline for chart
-  const perfData = Array.from({ length: 7 }, (_, i) => {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
-    const baseValue = (summary?.total_invested || 100000) * 0.9;
-    const growth = 1 + (i * 0.035) + (Math.random() * 0.02 - 0.01);
-    return { month: months[i], value: Math.round(baseValue * growth) };
-  });
-
-  const hasData = holdings.length > 0;
+  const nifty = snapshot.find(s => s.symbol === "^NSEI");
+  const sensex = snapshot.find(s => s.symbol === "^BSESN");
+  const bankNifty = snapshot.find(s => s.symbol === "^NSEBANK");
 
   return (
     <PageTransition>
       <AppShell>
-        <div className="pt-4">
-          {/* Welcome Header */}
-          <div className="mb-8">
-            <p className="text-xs text-[#9CA3AF] mb-1">Welcome back</p>
-            <GradientText
-              className="text-2xl font-bold"
-              colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-              animationSpeed={8}
-            >
-              {user?.full_name || "Investor"}
-            </GradientText>
+        <div className="pt-2 pb-10">
+          
+          <SearchBar onSearch={handleSearch} />
+
+          {/* Market Snapshot Index Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+            <MarketSnapshotCard title="NIFTY 50" data={nifty} />
+            <MarketSnapshotCard title="SENSEX" data={sensex} />
+            <MarketSnapshotCard title="BANK NIFTY" data={bankNifty} />
           </div>
 
-          {!hasData && !loading ? (
-            /* Empty State — Prompt CAS Upload */
-            <div className="flex flex-col items-center justify-center py-20">
-              <BorderGlow
-                borderRadius={24}
-                glowColor="258 90 66"
-                colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-                fillOpacity={0.3}
-              >
-                <div className="p-10 text-center max-w-md">
-                  <div className="h-16 w-16 rounded-2xl bg-[#6366F1]/20 flex items-center justify-center mx-auto mb-6">
-                    <Upload size={28} className="text-[#8B5CF6]" />
+          {/* User Watchlist */}
+          <WatchlistSection items={watchlist} onRemove={removeFromWatchlist} navigate={navigate} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Left Col: Movers & Discover */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Movers Section */}
+              <div className="glass-strong rounded-3xl p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2"><Activity size={20} className="text-[#8B5CF6]" /> Market In Focus</h2>
+                  <button className="text-xs text-[#8B5CF6] hover:text-white transition-colors flex items-center gap-1">View All <ArrowRight size={12} /></button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Top Gainers */}
+                  <div>
+                    <h3 className="text-xs font-bold text-[#9CA3AF] uppercase tracking-wider mb-3">Top Gainers</h3>
+                    <div className="space-y-1">
+                      {movers?.gainers.map(m => (
+                        <MoverCard key={m.symbol} data={m} label="Gainer" navigate={navigate} />
+                      ))}
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Upload Your CAS</h3>
-                  <p className="text-sm text-[#9CA3AF] mb-6">
-                    Upload your Consolidated Account Statement (CAS) PDF to see your portfolio analytics, AI insights, and more.
-                  </p>
-                  <button
-                    onClick={() => navigate("/upload")}
-                    className="px-6 py-3 rounded-xl neon-button text-white font-semibold text-sm flex items-center gap-2 mx-auto"
-                  >
-                    <Upload size={16} />
-                    Upload CAS PDF
-                  </button>
+                  {/* Top Losers */}
+                  <div>
+                    <h3 className="text-xs font-bold text-[#9CA3AF] uppercase tracking-wider mb-3">Top Losers</h3>
+                    <div className="space-y-1">
+                      {movers?.losers.map(m => (
+                        <MoverCard key={m.symbol} data={m} label="Loser" navigate={navigate} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Discover Themes */}
+              <div>
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Zap size={20} className="text-[#8B5CF6]" /> Discover Collections</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {["Technology", "Electric Vehicles", "Banking", "Green Energy"].map((theme, i) => (
+                    <div key={theme} className="glass rounded-xl p-4 text-center cursor-pointer hover:bg-white/10 transition-colors">
+                      <div className={`h-12 w-12 mx-auto rounded-full mb-3 flex items-center justify-center bg-gradient-to-br ${
+                        i===0 ? "from-blue-500/20 to-purple-500/20 text-blue-400" :
+                        i===1 ? "from-emerald-500/20 to-teal-500/20 text-emerald-400" :
+                        i===2 ? "from-orange-500/20 to-red-500/20 text-orange-400" :
+                        "from-green-500/20 to-blue-500/20 text-green-400"
+                      }`}>
+                        <TrendingUp size={24} />
+                      </div>
+                      <p className="text-sm font-bold text-white">{theme}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Col: News */}
+            <div className="space-y-6">
+              <BorderGlow borderRadius={24} glowColor="258 90 66" colors={["#6366F1", "#8B5CF6"]} fillOpacity={0.1}>
+                <div className="p-6">
+                  <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2"><Newspaper size={18} className="text-[#8B5CF6]"/> Latest Market News</h2>
+                  <div className="space-y-4">
+                    {news.map((item, idx) => (
+                      <a key={idx} href={item.url} target="_blank" rel="noreferrer" className="block p-3 rounded-xl hover:bg-white/5 transition-colors group">
+                        <p className="text-[10px] text-[#8B5CF6] font-bold mb-1 uppercase tracking-wider">{item.source.name}</p>
+                        <h4 className="text-sm font-semibold text-white group-hover:text-[#8B5CF6] transition-colors leading-snug line-clamp-2">{item.title}</h4>
+                      </a>
+                    ))}
+                    {news.length === 0 && <p className="text-sm text-[#9CA3AF]">Loading news...</p>}
+                  </div>
                 </div>
               </BorderGlow>
             </div>
-          ) : (
-            /* Dashboard Content */
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Portfolio Summary Card */}
-                <BorderGlow
-                  borderRadius={24}
-                  glowColor="258 90 66"
-                  colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-                  fillOpacity={0.3}
-                >
-                  <div className="p-6">
-                    <p className="text-xs text-[#9CA3AF] mb-2">Total Portfolio Value</p>
-                    <div className="flex items-end gap-3 mb-1">
-                      <h1 className="text-3xl font-bold text-white">
-                        ₹{(summary?.current_value || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </h1>
-                      {summary && (
-                        <span className={`text-sm font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
-                          summary.total_pnl >= 0
-                            ? "text-emerald-400 bg-emerald-400/10"
-                            : "text-red-400 bg-red-400/10"
-                        }`}>
-                          {summary.total_pnl >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                          {summary.total_pnl_percent >= 0 ? "+" : ""}{summary.total_pnl_percent.toFixed(2)}%
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-[#9CA3AF]">
-                      Invested: ₹{(summary?.total_invested || 0).toLocaleString("en-IN")} · P&L: ₹{(summary?.total_pnl || 0).toLocaleString("en-IN")}
-                    </p>
 
-                    {/* Mini Stats Row */}
-                    <div className="grid grid-cols-3 gap-3 mt-5">
-                      {[
-                        { icon: Wallet, label: "Invested", value: `₹${((summary?.total_invested || 0) / 1000).toFixed(1)}K` },
-                        { icon: summary?.total_pnl && summary.total_pnl >= 0 ? TrendingUp : TrendingDown, label: "P&L", value: `₹${((summary?.total_pnl || 0) / 1000).toFixed(1)}K` },
-                        { icon: BarChart3, label: "Holdings", value: String(summary?.holdings_count || 0) },
-                      ].map(({ icon: Icon, label, value }) => (
-                        <div key={label} className="glass rounded-xl p-3 text-center">
-                          <Icon size={16} className="text-[#8B5CF6] mx-auto mb-1" />
-                          <p className="text-xs text-[#9CA3AF]">{label}</p>
-                          <p className="text-sm font-bold text-white">{value}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </BorderGlow>
-
-                {/* Performance Chart */}
-                <div className="glass rounded-2xl p-5">
-                  <p className="text-xs text-[#9CA3AF] mb-1">Portfolio Growth</p>
-                  <p className="text-lg font-bold text-white mb-4">Performance Timeline</p>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <AreaChart data={perfData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="dashFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#6366F1" stopOpacity={0.4} />
-                          <stop offset="50%" stopColor="#8B5CF6" stopOpacity={0.15} />
-                          <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="dashLine" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#6366F1" />
-                          <stop offset="100%" stopColor="#8B5CF6" />
-                        </linearGradient>
-                        <filter id="dashGlow">
-                          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                          <feMerge>
-                            <feMergeNode in="coloredBlur" />
-                            <feMergeNode in="SourceGraphic" />
-                          </feMerge>
-                        </filter>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                      <XAxis dataKey="month" tick={{ fill: "#9CA3AF", fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: "#9CA3AF", fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <Tooltip
-                        contentStyle={{
-                          background: "rgba(11, 9, 20, 0.9)",
-                          border: "1px solid rgba(99, 102, 241, 0.3)",
-                          borderRadius: 12,
-                          color: "#fff",
-                          fontSize: 12,
-                        }}
-                        formatter={(val: number) => [`₹${val.toLocaleString("en-IN")}`, "Value"]}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value"
-                        stroke="url(#dashLine)"
-                        strokeWidth={2.5}
-                        fill="url(#dashFill)"
-                        filter="url(#dashGlow)"
-                        dot={false}
-                        activeDot={{ r: 5, fill: "#6366F1", stroke: "white", strokeWidth: 2 }}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                {/* Sector Allocation Pie */}
-                {sectorData.length > 0 && (
-                  <div className="glass rounded-2xl p-5">
-                    <p className="text-xs text-[#9CA3AF] mb-1">Allocation</p>
-                    <p className="text-base font-bold text-white mb-3">By Sector</p>
-                    <ResponsiveContainer width="100%" height={180}>
-                      <PieChart>
-                        <Pie
-                          data={sectorData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={50}
-                          outerRadius={75}
-                          paddingAngle={2}
-                          dataKey="value"
-                          stroke="none"
-                        >
-                          {sectorData.map((_, i) => (
-                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          contentStyle={{
-                            background: "rgba(11, 9, 20, 0.9)",
-                            border: "1px solid rgba(99, 102, 241, 0.3)",
-                            borderRadius: 12,
-                            color: "#fff",
-                            fontSize: 12,
-                          }}
-                          formatter={(val: number) => [`₹${val.toLocaleString("en-IN")}`, "Value"]}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="grid grid-cols-2 gap-1.5 mt-2">
-                      {sectorData.slice(0, 6).map((s, i) => (
-                        <div key={s.name} className="flex items-center gap-1.5">
-                          <div className="h-2 w-2 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
-                          <span className="text-[10px] text-[#9CA3AF] truncate">{s.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Top Holdings */}
-                <div className="glass-strong rounded-2xl overflow-hidden">
-                  <div className="p-5 border-b border-white/5">
-                    <h3 className="text-base font-bold text-white">Top Holdings</h3>
-                    <p className="text-[10px] text-[#9CA3AF]">By market value</p>
-                  </div>
-                  <div className="p-2 space-y-1">
-                    {topHoldings.map((h) => (
-                      <div
-                        key={h.id}
-                        className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${
-                            (h.pnl || 0) >= 0 ? "bg-emerald-400/10" : "bg-red-400/10"
-                          }`}>
-                            {(h.pnl || 0) >= 0 ? (
-                              <TrendingUp size={16} className="text-emerald-400" />
-                            ) : (
-                              <TrendingDown size={16} className="text-red-400" />
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold text-white truncate group-hover:text-[#8B5CF6] transition-colors">
-                              {h.symbol.replace(".NS", "")}
-                            </p>
-                            <p className="text-[10px] text-[#9CA3AF] truncate">{h.name}</p>
-                          </div>
-                        </div>
-                        <div className="text-right shrink-0 ml-2">
-                          <p className="text-xs font-bold text-white">
-                            ₹{(h.market_value || 0).toLocaleString("en-IN")}
-                          </p>
-                          <p className={`text-[10px] font-medium ${
-                            (h.pnl_percent || 0) >= 0 ? "text-emerald-400" : "text-red-400"
-                          }`}>
-                            {(h.pnl_percent || 0) >= 0 ? "+" : ""}{(h.pnl_percent || 0).toFixed(2)}%
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </AppShell>
     </PageTransition>

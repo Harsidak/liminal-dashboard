@@ -40,7 +40,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="gradient-bg min-h-screen flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         {/* Logo / Brand */}
         <div className="text-center mb-8">

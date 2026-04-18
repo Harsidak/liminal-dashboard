@@ -1,14 +1,15 @@
 import { ReactNode } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import Dock from "./Dock";
 import {
   LayoutDashboard,
-  PieChart,
+  Home,
   BarChart3,
   BrainCircuit,
   Upload,
   User,
 } from "lucide-react";
+
 
 const AppShell = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
@@ -22,12 +23,6 @@ const AppShell = ({ children }: { children: ReactNode }) => {
       className: location.pathname === "/" ? "dock-active" : "",
     },
     {
-      icon: <PieChart size={18} />,
-      label: "Portfolio",
-      onClick: () => navigate("/portfolio"),
-      className: location.pathname === "/portfolio" ? "dock-active" : "",
-    },
-    {
       icon: <BarChart3 size={18} />,
       label: "Analytics",
       onClick: () => navigate("/analytics"),
@@ -35,7 +30,7 @@ const AppShell = ({ children }: { children: ReactNode }) => {
     },
     {
       icon: <BrainCircuit size={18} />,
-      label: "XAI",
+      label: "AI Insights",
       onClick: () => navigate("/ai-insights"),
       className: location.pathname === "/ai-insights" ? "dock-active" : "",
     },
@@ -54,18 +49,21 @@ const AppShell = ({ children }: { children: ReactNode }) => {
   ];
 
   return (
-    <div className="gradient-bg min-h-screen">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-        <main className="relative min-h-[calc(100vh-8rem)] pb-32 lg:pb-12">
-          {children}
+    <div className="relative min-h-screen">
+      {/* Content Layer */}
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <main className="min-h-screen pb-40">
+          {children || <Outlet />}
         </main>
       </div>
-      <Dock
-        items={items}
-        panelHeight={70}
-        baseItemSize={50}
-        magnification={100}
-      />
+      <div className="relative z-50">
+        <Dock
+          items={items}
+          panelHeight={70}
+          baseItemSize={50}
+          magnification={100}
+        />
+      </div>
     </div>
   );
 };

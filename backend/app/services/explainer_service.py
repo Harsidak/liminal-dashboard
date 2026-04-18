@@ -3,7 +3,13 @@ from groq import Groq
 from app.core.config import settings
 from app.schemas.explainer import AssetExplainRequest, ExplainerResponse
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+client = None
+if settings.GEMINI_API_KEY:
+    try:
+        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    except Exception as e:
+        print(f"Failed to initialize Gemini client: {e}")
+
 groq_client = Groq(api_key=settings.GROQ_API_KEY) if settings.GROQ_API_KEY else None
 
 def compute_mock_shap(factors: dict) -> dict:
@@ -38,6 +44,9 @@ Do NOT use jargon. Do NOT say "SHAP values". Be reassuring if the change is nega
 
     try:
         # ATTEMPT 1: Gemini
+        if not client:
+            raise Exception("Gemini client is not initialized due to missing or invalid API key.")
+            
         print(f"🔄 Attempting Gemini for {request.symbol}...")
         response = client.models.generate_content(
             model="gemini-2.0-flash",
@@ -74,9 +83,10 @@ Do NOT use jargon. Do NOT say "SHAP values". Be reassuring if the change is nega
         
         # FINAL FALLBACK: Hardcoded text
         print("🚨 Both LLMs failed, using hardcoded fallback")
+        factor_name = list(request.factors.keys())[0].replace('_', ' ') if request.factors else 'market'
         explanation = (
             f"{request.symbol} dropped {abs(request.change_percent)}% mainly due to "
-            f"{list(request.factors.keys())[0].replace('_', ' ')} pressures. "
+            f"{factor_name} pressures. "
             f"This is a short-term fluctuation — the fundamentals remain intact."
         )
 

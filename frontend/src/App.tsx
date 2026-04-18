@@ -9,13 +9,14 @@ import { AnimatePresence } from "framer-motion";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import Portfolio from "./pages/Portfolio";
 import Analytics from "./pages/Analytics";
 import AIInsights from "./pages/AIInsights";
 import UploadCAS from "./pages/UploadCAS";
 import Sandbox from "./pages/Sandbox";
 import Profile from "./pages/Profile";
+import StockDetail from "./pages/StockDetail";
 import NotFound from "./pages/NotFound";
+import AppShell from "./components/AppShell";
 
 const queryClient = new QueryClient();
 
@@ -35,14 +36,16 @@ const AnimatedRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected Routes */}
-        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
-        <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-        <Route path="/ai-insights" element={<ProtectedRoute><AIInsights /></ProtectedRoute>} />
-        <Route path="/upload" element={<ProtectedRoute><UploadCAS /></ProtectedRoute>} />
-        <Route path="/sandbox" element={<ProtectedRoute><Sandbox /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        {/* Protected Routes Wrap */}
+        <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/stock/:symbol" element={<StockDetail />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/ai-insights" element={<AIInsights />} />
+          <Route path="/upload" element={<UploadCAS />} />
+          <Route path="/sandbox" element={<Sandbox />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
 
         {/* Catch-all */}
         <Route path="*" element={<NotFound />} />
@@ -51,14 +54,44 @@ const AnimatedRoutes = () => {
   );
 };
 
+import PixelBlast from "./components/PixelBlast";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <AnimatedRoutes />
-      </BrowserRouter>
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#1e1b4b] to-[#0B0914]">
+        {/* Global Background Layer */}
+        <div className="fixed inset-0 z-0">
+          <PixelBlast
+    variant="square"
+    pixelSize={4}
+    color="#B497CF"
+    patternScale={4.5}
+    patternDensity={1.25}
+    pixelSizeJitter={0}
+    enableRipples
+    rippleSpeed={0.4}
+    rippleThickness={0.12}
+    rippleIntensityScale={1.5}
+    liquid={false}
+    liquidStrength={0.12}
+    liquidRadius={1.2}
+    liquidWobbleSpeed={5}
+    speed={0.65}
+    edgeFade={0.26}
+    transparent
+          />
+        </div>
+
+        {/* Global Content Layer */}
+        <div className="relative z-10 h-full w-full">
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </div>
+      </div>
     </TooltipProvider>
   </QueryClientProvider>
 );

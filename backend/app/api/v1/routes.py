@@ -302,10 +302,7 @@ async def get_portfolio(
 # ─── STOCK PRICES ─────────────────────────────────────────────────────────────
 
 @router.get("/stocks/price/{symbol}", response_model=StockPriceResponse)
-async def stock_price(
-    symbol: str,
-    current_user: User = Depends(get_current_user),
-):
+async def stock_price(symbol: str):
     """Get current price for a single stock."""
     try:
         return await get_stock_price(symbol)
@@ -317,7 +314,6 @@ async def stock_price(
 async def stock_history(
     symbol: str,
     period: str = Query("6mo", description="1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, max"),
-    current_user: User = Depends(get_current_user),
 ):
     """Get historical OHLCV data for a stock."""
     try:
@@ -378,11 +374,6 @@ async def explain(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-    return {
-        "panic_detected": False,
-        "block_trade": False,
-        "message": "You're making a calm decision. Proceed when ready."
-    }
 
 @router.post("/portfolio/stress-test", response_model=StressTestResponse)
 async def portfolio_stress_test(

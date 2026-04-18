@@ -17,7 +17,9 @@ VALID_PERIODS = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "max"}
 
 
 def _ensure_ns_suffix(symbol: str) -> str:
-    """Ensure symbol has .NS suffix for NSE stocks."""
+    """Ensure symbol has .NS suffix for NSE stocks. Skip index symbols (^...)."""
+    if symbol.startswith("^"):
+        return symbol  # Index symbols like ^NSEI, ^BSESN don't need a suffix
     if not symbol.endswith((".NS", ".BO")):
         return f"{symbol}.NS"
     return symbol

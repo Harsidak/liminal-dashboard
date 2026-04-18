@@ -1,0 +1,8 @@
+- OS: Windows-11-10.0.26200-SP0 10.0.26200
+- Python: 3.13.5
+- Stable-Baselines3: 2.8.0
+- PyTorch: 2.11.0+cpu
+- GPU Enabled: False
+- Numpy: 2.3.5
+- Cloudpickle: 3.1.2
+- Gymnasium: 1.2.3

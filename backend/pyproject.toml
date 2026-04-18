@@ -3,7 +3,7 @@ name = "liminal-backend"
 version = "0.1.0"
 description = "FastAPI backend for Liminal AI"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
   "aiokafka>=0.13.0",
   "aiosqlite>=0.22.1",
@@ -30,7 +30,13 @@ dependencies = [
   "pymupdf>=1.27.2.2",
   "python-multipart>=0.0.26",
   "yfinance>=1.2.1",
-  "groq>=1.2.0",
+  "groq>=0.30.0,<1.0.0",
+  "langchain>=0.3.0",
+  "langchain-core>=0.3.0",
+  "langchain-google-genai>=2.0.0",
+  "langchain-groq>=0.3.0",
+  "stable-baselines3>=2.5.0",
+  "gymnasium>=1.0.0",
 ]
 
 [project.optional-dependencies]

@@ -256,9 +256,28 @@ export async function removeFromWatchlist(symbol: string) {
   });
 }
 
+export async function searchStocks(query: string) {
+  return request<Array<{ symbol: string; name: string; type: string; exch: string }>>(
+    `/stocks/search?query=${query}`
+  );
+}
+
+export async function getStockCollection(theme: string) {
+  return request<StockPrice[]>(`/stocks/collection/${theme}`);
+}
+
+// ─── CHATBOT ──────────────────────────────────────────────────────────────────
+
+export async function sendChatMessage(message: string) {
+  return request<{ reply: string }>("/chat", {
+    method: "POST",
+    body: { message },
+  });
+}
+
 // ─── EXPORTS ──────────────────────────────────────────────────────────────────
 
-export default {
+export const api = {
   register,
   login,
   getMe,
@@ -276,4 +295,10 @@ export default {
   getWatchlist,
   addToWatchlist,
   removeFromWatchlist,
+  sendChatMessage,
+  searchStocks,
+  getStockCollection,
 };
+
+export default api;
+

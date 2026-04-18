@@ -30,8 +30,14 @@ async def fetch_market_news() -> List[dict]:
     if not api_key:
         logger.warning("No NEWS_API key configured. Returning mock news.")
         return [
-            {"title": "Markets hit all time high", "description": "Nifty surges past 25,000", "url": "#", "source": {"name": "MockNews"}},
-            {"title": "Tech stocks rally", "description": "IT sector shows strong recovery", "url": "#", "source": {"name": "MockNews"}},
+            {"title": "Nifty 50 approaches all-time high amid global rally", "description": "Indian benchmarks continued their upward trajectory as banking and IT stocks led the charge.", "url": "https://economictimes.indiatimes.com/markets", "source": {"name": "ET Markets"}},
+            {"title": "RBI keeps repo rates unchanged for 7th consecutive time", "description": "The central bank maintains its withdrawal of accommodation stance to curb inflation within target limits.", "url": "https://www.livemint.com/economy", "source": {"name": "LiveMint"}},
+            {"title": "Reliance Industries announces major expansion in Green Energy", "description": "RIL shares rose 2% after unveiling a new roadmap for its solar and hydrogen ecosystem integration.", "url": "https://www.moneycontrol.com/", "source": {"name": "MoneyControl"}},
+            {"title": "FIIs turn net buyers in Indian equity market this week", "description": "Foreign institutional investors pumped over \u20b95,000 crore into domestic equities, signaling confidence.", "url": "https://www.reuters.com/markets/india", "source": {"name": "Reuters"}},
+            {"title": "IT sector earnings show signs of demand recovery", "description": "Leading IT firms reported steady deal pipelines despite macroeconomic headwinds in the US and Europe.", "url": "https://www.bloomberg.com/asia", "source": {"name": "Bloomberg"}},
+            {"title": "Zomato and Swiggy see surge in deliveries during festive season", "description": "Food-tech platforms report record-breaking order volumes as consumer spending picks up.", "url": "https://techcrunch.com/", "source": {"name": "TechCrunch"}},
+            {"title": "HDFC Bank merger synergies start reflecting in quarterly results", "description": "Analysts remain bullish on the private lender as deposit growth outpaces industry averages.", "url": "https://www.ndtv.com/business", "source": {"name": "NDTV Business"}},
+            {"title": "Crude oil prices stabilize, easing inflation fears for India", "description": "Brent crude dipped to $78 per barrel, providing relief to India's fiscal deficit and fuel retailers.", "url": "https://www.cnbc.com/markets", "source": {"name": "CNBC"}},
         ]
 
     url = "https://newsapi.org/v2/top-headlines"

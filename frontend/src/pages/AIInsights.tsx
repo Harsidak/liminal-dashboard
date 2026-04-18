@@ -1,5 +1,4 @@
 import { useState } from "react";
-import AppShell from "@/components/AppShell";
 import PageTransition from "@/components/PageTransition";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
@@ -209,7 +208,6 @@ const AIInsights = () => {
 
   return (
     <PageTransition>
-    <AppShell>
       <div className="pt-6">
         <div className="flex items-center gap-2.5 mb-8">
           <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center glow-button">
@@ -326,7 +324,6 @@ const AIInsights = () => {
           </div>
         </div>
       </div>
-    </AppShell>
     </PageTransition>
   );
 };

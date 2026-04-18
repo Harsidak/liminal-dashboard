@@ -49,6 +49,11 @@ backend/.python-version
 htmlcov/
 *.egg-info/
 *.egg
+backend/.ruff_cache/
+.ipynb_checkpoints/
+backend\uv.lock
+backend\pyproject.toml
+
 
 # ─── Environment Variables (CRITICAL) ────
 .env
@@ -65,11 +70,12 @@ backend/uploads/
 
 # ─── Documents (local-only assets) ───────
 Documents/
-
+!backend/uploads/.gitkeep
 # ─── AI Assistant Configs ────────────────
 .claude/
 .cursor/
+.gemini/
 CLAUDE.md
-
+*.lock
 # ─── Misc ────────────────────────────────
 *.log

@@ -9,9 +9,9 @@ import { AnimatePresence } from "framer-motion";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import Analytics from "./pages/Analytics";
+import Portfolio from "./pages/Portfolio";
+import Chat from "./pages/Chat";
 import AIInsights from "./pages/AIInsights";
-import UploadCAS from "./pages/UploadCAS";
 import Sandbox from "./pages/Sandbox";
 import Profile from "./pages/Profile";
 import StockDetail from "./pages/StockDetail";
@@ -40,11 +40,14 @@ const AnimatedRoutes = () => {
         <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/stock/:symbol" element={<StockDetail />} />
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="/ai-insights" element={<AIInsights />} />
-          <Route path="/upload" element={<UploadCAS />} />
+          <Route path="/upload" element={<Navigate to="/profile" replace />} />
           <Route path="/sandbox" element={<Sandbox />} />
           <Route path="/profile" element={<Profile />} />
+          {/* Legacy redirect */}
+          <Route path="/analytics" element={<Navigate to="/portfolio" replace />} />
         </Route>
 
         {/* Catch-all */}

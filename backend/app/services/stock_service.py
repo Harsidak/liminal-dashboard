@@ -136,3 +136,39 @@ async def update_holding_prices(holdings: list) -> list:
             holding["pnl_percent"] = 0
     
     return holdings
+
+
+async def search_tickers(query: str) -> list[dict]:
+    """
+    Search for stock symbols based on a query (e.g., 'Reliance' -> 'RELIANCE.NS').
+    Uses yfinance's undocumented search logic.
+    """
+    try:
+        # yfinance search is better suited for global symbols,
+        # but it works reasonably well for Indian stocks if query is specific.
+        import httpx
+        url = "https://query2.finance.yahoo.com/v1/finance/search"
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        params = {"q": query, "quotesCount": 5, "newsCount": 0}
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            
+            results = []
+            for quote in data.get("quotes", []):
+                symbol = quote.get("symbol")
+                # Filter for mostly Indian stocks (.NS, .BO) or major global ones
+                if symbol:
+                    results.append({
+                        "symbol": symbol,
+                        "name": quote.get("shortname") or quote.get("longname") or symbol,
+                        "type": quote.get("quoteType", "EQUITY"),
+                        "exch": quote.get("exchange")
+                    })
+            return results
+    except Exception as e:
+        logger.error(f"Ticker search error for {query}: {e}")
+        # Fallback to simple suffix logic
+        return [{"symbol": f"{query.upper()}.NS", "name": query, "type": "EQUITY", "exch": "NSE"}]

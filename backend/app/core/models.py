@@ -98,6 +98,17 @@ class Watchlist(Base):
     user = relationship("User", back_populates="watchlist")
     items = relationship("WatchlistItem", back_populates="watchlist", cascade="all, delete-orphan")
 
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(String, primary_key=True, default=gen_uuid)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    role = Column(String, nullable=False)   # user | assistant
+    content = Column(Text, nullable=False)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", backref="chat_messages")
+
 class WatchlistItem(Base):
     __tablename__ = "watchlist_items"
 

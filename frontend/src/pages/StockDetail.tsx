@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import AppShell from "@/components/AppShell";
 import PageTransition from "@/components/PageTransition";
 import BorderGlow from "@/components/BorderGlow";
 import api, { type StockPrice, type StockHistoryPoint } from "@/lib/api";
@@ -71,7 +70,6 @@ const StockDetail = () => {
 
   return (
     <PageTransition>
-      <AppShell>
         <div className="pt-2 pb-10">
           <button 
             onClick={() => navigate(-1)}
@@ -247,7 +245,6 @@ const StockDetail = () => {
           )}
 
         </div>
-      </AppShell>
     </PageTransition>
   );
 };

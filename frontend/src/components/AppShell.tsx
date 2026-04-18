@@ -1,17 +1,17 @@
 import { ReactNode } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import Dock from "./Dock";
+import Chatbot from "./Chatbot";
 import {
   LayoutDashboard,
-  Home,
-  BarChart3,
+  Briefcase,
   BrainCircuit,
-  Upload,
+  MessageSquare,
   User,
 } from "lucide-react";
 
 
-const AppShell = ({ children }: { children: ReactNode }) => {
+const AppShell = ({ children }: { children?: ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,10 +23,10 @@ const AppShell = ({ children }: { children: ReactNode }) => {
       className: location.pathname === "/" ? "dock-active" : "",
     },
     {
-      icon: <BarChart3 size={18} />,
-      label: "Analytics",
-      onClick: () => navigate("/analytics"),
-      className: location.pathname === "/analytics" ? "dock-active" : "",
+      icon: <Briefcase size={18} />,
+      label: "Portfolio",
+      onClick: () => navigate("/portfolio"),
+      className: location.pathname === "/portfolio" ? "dock-active" : "",
     },
     {
       icon: <BrainCircuit size={18} />,
@@ -35,10 +35,10 @@ const AppShell = ({ children }: { children: ReactNode }) => {
       className: location.pathname === "/ai-insights" ? "dock-active" : "",
     },
     {
-      icon: <Upload size={18} />,
-      label: "Upload",
-      onClick: () => navigate("/upload"),
-      className: location.pathname === "/upload" ? "dock-active" : "",
+      icon: <MessageSquare size={18} />,
+      label: "Chat",
+      onClick: () => navigate("/chat"),
+      className: location.pathname === "/chat" ? "dock-active" : "",
     },
     {
       icon: <User size={18} />,
@@ -56,14 +56,14 @@ const AppShell = ({ children }: { children: ReactNode }) => {
           {children || <Outlet />}
         </main>
       </div>
-      <div className="relative z-50">
-        <Dock
-          items={items}
-          panelHeight={70}
-          baseItemSize={50}
-          magnification={100}
-        />
-      </div>
+
+      {/* Dock — fixed at viewport bottom via CSS */}
+      <Dock
+        items={items}
+        panelHeight={70}
+        baseItemSize={50}
+        magnification={100}
+      />
     </div>
   );
 };

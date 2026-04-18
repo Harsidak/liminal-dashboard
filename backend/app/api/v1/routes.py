@@ -17,15 +17,16 @@ from app.schemas import (
 )
 from app.schemas.simulation import SimulationCreate, SimulationResponse
 from app.schemas.explainer import AssetExplainRequest, ExplainerResponse
+from app.schemas.chat import ChatHistoryResponse, ChatMessageResponse, ChatRequest
+from app.schemas.stress import StressTestResponse, StressTestRequest
 from app.schemas.cas import CASUploadResponse, HoldingResponse, PortfolioSummary, AllocationResponse
 from app.schemas.stock import StockPriceResponse, StockHistoryResponse, BatchPriceRequest, BatchPriceResponse
-from app.services.explainer_service import explain_asset
-from app.services.simulation_service import create_simulation, get_simulation
-from app.services.cas_parser import decrypt_and_parse
-from app.services.stock_service import get_stock_price, get_stock_history, get_batch_prices, update_holding_prices
+from app.services.stress_test_service import stress_test_service
+from app.services.stock_service import get_stock_price, get_stock_history, get_batch_prices, update_holding_prices, search_tickers
 from app.services.analytics_service import get_portfolio_summary, get_allocation
 from app.services.news_service import fetch_market_news
 from app.services.watchlist_service import get_watchlist_items, add_to_watchlist, remove_from_watchlist
+from app.services.chatbot_service import chat_with_user
 from pydantic import BaseModel
 
 class WatchlistAddRequest(BaseModel):
@@ -377,29 +378,19 @@ async def explain(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ─── BEHAVIORAL COACH ─────────────────────────────────────────────────────────
-
-@router.post("/behavioral/panic-check")
-async def panic_check(
-    payload: dict,
-    current_user: User = Depends(get_current_user)
-):
-    score = payload.get("agitation_score", 0)
-    if score >= 0.8:
-        return {
-            "panic_detected": True,
-            "block_trade": True,
-            "message": (
-                "Take a breath. Markets recover. Selling now locks in your loss "
-                "permanently. Historical data shows 89% of dips recover within 12 months."
-            ),
-            "cognitive_bias": "loss_aversion"
-        }
     return {
         "panic_detected": False,
         "block_trade": False,
         "message": "You're making a calm decision. Proceed when ready."
     }
+
+@router.post("/portfolio/stress-test", response_model=StressTestResponse)
+async def portfolio_stress_test(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Run a PPO-backed stress test for the user's portfolio."""
+    return await stress_test_service.run_stress_test(db, current_user.id)
 
 # ─── MARKET DATA, NEWS & WATCHLIST ───────────────────────────────────────────
 
@@ -427,6 +418,26 @@ async def market_movers():
 @router.get("/news")
 async def market_news():
     return await fetch_market_news()
+
+@router.get("/stocks/search")
+async def search_stocks(query: str = Query(..., min_length=2)):
+    """Search for tickers by name."""
+    return await search_tickers(query)
+
+@router.get("/stocks/collection/{theme}")
+async def get_collection(theme: str):
+    """Get thematic stock collections."""
+    collections = {
+        "Technology": ["TCS.NS", "INFY.NS", "WIPRO.NS", "HCLTECH.NS", "LTIM.NS"],
+        "EVs": ["TATAMOTORS.NS", "M&M.NS", "ASHOKLEY.NS", "SONACOMS.NS", "OLECTRA.NS"],
+        "Banking": ["HDFCBANK.NS", "ICICIBANK.NS", "SBIN.NS", "AXISBANK.NS", "KOTAKBANK.NS"],
+        "Green Energy": ["ADANIGREEN.NS", "TATAPOWER.NS", "IREDA.NS", "SUZLON.NS", "NHPC.NS"]
+    }
+    symbols = collections.get(theme, [])
+    if not symbols:
+        raise HTTPException(status_code=404, detail="Collection not found")
+    results, _ = await get_batch_prices(symbols)
+    return results
 
 @router.get("/watchlist")
 async def get_watchlist(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -457,3 +468,69 @@ async def remove_watchlist(
     if not removed:
         raise HTTPException(status_code=404, detail="Symbol not in watchlist")
     return {"message": "Removed successfully", "symbol": symbol.upper()}
+
+# ─── CHATBOT ────────────────────────────────────────────────────────────────────
+
+@router.get("/chat/history", response_model=ChatHistoryResponse)
+async def get_chat_history(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Retrieve user's chat history."""
+    from app.core.models import ChatMessage
+    result = await db.execute(
+        select(ChatMessage)
+        .where(ChatMessage.user_id == current_user.id)
+        .order_by(ChatMessage.timestamp.asc())
+    )
+    messages = result.scalars().all()
+    # Manual conversion to ensure timestamp is handled
+    return ChatHistoryResponse(messages=[ChatMessageResponse(
+        id=m.id,
+        role=m.role,
+        content=m.content,
+        timestamp=m.timestamp
+    ) for m in messages])
+
+@router.post("/chat")
+async def chat_endpoint(
+    body: ChatRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """AI chatbot that has access to user's portfolio context and history."""
+    from app.core.models import ChatMessage
+    
+    # 1. Save user message
+    user_msg = ChatMessage(
+        id=str(uuid.uuid4()),
+        user_id=current_user.id,
+        role="user",
+        content=body.message
+    )
+    db.add(user_msg)
+    
+    # 2. Get history for context
+    result = await db.execute(
+        select(ChatMessage)
+        .where(ChatMessage.user_id == current_user.id)
+        .order_by(ChatMessage.timestamp.desc())
+        .limit(10)
+    )
+    history = list(reversed(result.scalars().all()))
+    
+    # 3. Get AI reply
+    reply_content = await chat_with_user(db, current_user, body.message, history)
+    
+    # 4. Save AI message
+    ai_msg = ChatMessage(
+        id=str(uuid.uuid4()),
+        user_id=current_user.id,
+        role="assistant",
+        content=reply_content
+    )
+    db.add(ai_msg)
+    
+    await db.commit()
+    
+    return {"reply": reply_content}

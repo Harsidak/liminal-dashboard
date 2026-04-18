@@ -12,7 +12,7 @@
        Secondary Text: #9CA3AF
     */
 
-    --background: 256 52% 24%;    /* #2E1E5B base */
+    --background: 0 0% 0%;        /* #000000 */
     --foreground: 0 0% 100%;      /* #FFFFFF */
 
     --card: 254 42% 18%;
@@ -53,7 +53,7 @@
     --emerald: 160 84% 39%;
     --rose: 0 84% 60%;
 
-    --sidebar-background: 270 60% 4%;
+    --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 252 90% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -71,10 +71,16 @@
 
   body {
     @apply text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    /* Deep Background: radial gradient #2E1E5B center → #0B0914 edges */
-    background: radial-gradient(ellipse at center, #2E1E5B 0%, #1a1035 35%, #0B0914 80%);
+    font-family: 'Inter', 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #000000 !important;
     min-height: 100vh;
+  }
+
+  /* Override hardcoded gradients in App.tsx */
+  #root > div:first-child,
+  .min-h-screen.bg-gradient-to-br {
+    background: #000000 !important;
+    background-image: none !important;
   }
 
   /* Typography: Outfit for all headings and display text */
@@ -141,8 +147,8 @@
     box-shadow: 0 4px 24px -4px rgba(139, 92, 246, 0.5);
   }
   .gradient-bg {
-    background: radial-gradient(ellipse at center, #2E1E5B 0%, #1a1035 35%, #0B0914 80%);
     min-height: 100vh;
+    background: #000000;
   }
   .screen-frame {
     background: linear-gradient(180deg, rgba(20, 11, 44, 0.95), rgba(13, 8, 28, 0.96));

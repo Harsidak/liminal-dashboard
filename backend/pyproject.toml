@@ -30,6 +30,7 @@ dependencies = [
   "pymupdf>=1.27.2.2",
   "python-multipart>=0.0.26",
   "yfinance>=1.2.1",
+  "groq>=1.2.0",
 ]
 
 [project.optional-dependencies]

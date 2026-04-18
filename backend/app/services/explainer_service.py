@@ -1,9 +1,10 @@
 from google import genai
+from groq import Groq
 from app.core.config import settings
 from app.schemas.explainer import AssetExplainRequest, ExplainerResponse
-import traceback
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
+groq_client = Groq(api_key=settings.GROQ_API_KEY) if settings.GROQ_API_KEY else None
 
 def compute_mock_shap(factors: dict) -> dict:
     total = sum(abs(v) for v in factors.values())
@@ -36,17 +37,43 @@ In exactly 2 sentences, explain WHY this happened in plain language a college st
 Do NOT use jargon. Do NOT say "SHAP values". Be reassuring if the change is negative."""
 
     try:
+        # ATTEMPT 1: Gemini
+        print(f"🔄 Attempting Gemini for {request.symbol}...")
         response = client.models.generate_content(
             model="gemini-2.0-flash",
             contents=prompt
         )
         explanation = response.text.strip()
-        print(f"✅ Gemini response: {explanation}")
+        print("✅ Gemini response received")
 
-    except Exception as e:
-        print(f"❌ Gemini API error: {e}")
-        traceback.print_exc()
-        # Fallback explanation so the endpoint doesn't crash
+    except Exception as gem_e:
+        print(f"⚠️ Gemini API error: {gem_e}")
+        
+        # ATTEMPT 2: Groq Fallback
+        if groq_client:
+            try:
+                print(f"🔄 Falling back to Groq for {request.symbol}...")
+                chat_completion = groq_client.chat.completions.create(
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": prompt,
+                        }
+                    ],
+                    model="llama-3.3-70b-versatile",
+                )
+                explanation = chat_completion.choices[0].message.content.strip()
+                print("✅ Groq response received")
+                return ExplainerResponse(
+                    symbol=request.symbol,
+                    explanation=explanation,
+                    shap_values=shap_values
+                )
+            except Exception as groq_e:
+                print(f"❌ Groq API error: {groq_e}")
+        
+        # FINAL FALLBACK: Hardcoded text
+        print("🚨 Both LLMs failed, using hardcoded fallback")
         explanation = (
             f"{request.symbol} dropped {abs(request.change_percent)}% mainly due to "
             f"{list(request.factors.keys())[0].replace('_', ' ')} pressures. "

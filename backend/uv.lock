@@ -669,6 +669,23 @@ wheels = [
 ]
 
 [[package]]
+name = "groq"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/27/51/4728c13611849ff6cf8536740ae78ba3ee5e665d67b572a47c9ead0f9788/groq-1.2.0.tar.gz", hash = "sha256:85459e27c9c17f22404349c785cd08680362cfe85e07cc060be46c4832f108c3", size = 155609, upload-time = "2026-04-18T10:43:50.68Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/82/748639c95c60ad8846c65b167ca611c815d06d5f67a9e73b23486dce4fdf/groq-1.2.0-py3-none-any.whl", hash = "sha256:1002060a743b27c8f86765e1bc9749c98498e961d9fe2e4902bf7804a71c3c84", size = 142334, upload-time = "2026-04-18T10:43:49.125Z" },
+]
+
+[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -872,6 +889,7 @@ dependencies = [
     { name = "email-validator" },
     { name = "fastapi" },
     { name = "google-genai" },
+    { name = "groq" },
     { name = "httpx" },
     { name = "numpy" },
     { name = "pandas" },
@@ -908,6 +926,7 @@ requires-dist = [
     { name = "email-validator", specifier = ">=2.3.0" },
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "google-genai", specifier = ">=1.72.0" },
+    { name = "groq", specifier = ">=1.2.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.27.0" },
     { name = "numpy", specifier = ">=2.4.4" },

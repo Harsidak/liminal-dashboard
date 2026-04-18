@@ -10,6 +10,7 @@ import {
   AnimatePresence
 } from 'motion/react';
 import React, { Children, cloneElement, useEffect, useMemo, useRef, useState } from 'react';
+
 import './Dock.css';
 
 export type DockItemData = {

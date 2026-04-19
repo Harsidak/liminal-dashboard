@@ -19,8 +19,9 @@ const StockDetail = () => {
   const [history, setHistory] = useState<StockHistoryPoint[]>([]);
   const [period, setPeriod] = useState("1mo");
   const [loading, setLoading] = useState(true);
-  const [watchlist, setWatchlist] = useState<StockPrice[]>([]);
+  const [watchlists, setWatchlists] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("performance");
+  const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
     if (!symbol) return;
@@ -30,11 +31,11 @@ const StockDetail = () => {
         const [pRes, hRes, wRes] = await Promise.all([
           api.getStockPrice(symbol),
           api.getStockHistory(symbol, period),
-          api.getWatchlist().catch(() => [])
+          api.getWatchlists().catch(() => [])
         ]);
         setPrice(pRes);
         setHistory(hRes.data);
-        setWatchlist(wRes || []);
+        setWatchlists(wRes || []);
       } catch (err) {
         toast.error("Failed to load stock data");
       } finally {
@@ -44,23 +45,24 @@ const StockDetail = () => {
     fetchAll();
   }, [symbol, period]);
 
-  const inWatchlist = watchlist.some(w => w.symbol === symbol);
-
-  const toggleWatchlist = async () => {
+  const handleAddToWatchlist = async (watchlistId: string) => {
     if (!symbol) return;
     try {
-      if (inWatchlist) {
-        await api.removeFromWatchlist(symbol);
-        setWatchlist(w => w.filter(x => x.symbol !== symbol));
-        toast.success("Removed from watchlist");
-      } else {
-        await api.addToWatchlist(symbol);
-        const wRes = await api.getWatchlist().catch(() => []);
-        setWatchlist(wRes);
-        toast.success("Added to watchlist");
-      }
-    } catch (e) {
-      toast.error("Failed to update watchlist");
+      await api.addToWatchlist(symbol, watchlistId);
+      toast.success("Added to watchlist");
+      setShowPicker(false);
+    } catch (e: any) {
+      toast.error(e.message || "Failed to add to watchlist");
+    }
+  };
+
+  const handleRemoveFromWatchlist = async (watchlistId: string) => {
+    if (!symbol) return;
+    try {
+      await api.removeFromWatchlist(symbol, watchlistId);
+      toast.success("Removed from watchlist");
+    } catch (e: any) {
+      toast.error("Failed to remove from watchlist");
     }
   };
 
@@ -221,23 +223,41 @@ const StockDetail = () => {
               </div>
 
               {/* Right Sidebar: Action Buttons */}
-              <div className="space-y-4">
-                <BorderGlow borderRadius={24} glowColor="258 90 66" colors={["#6366F1", "#8B5CF6"]} fillOpacity={inWatchlist ? 0.2 : 0.05}>
-                  <button 
-                    onClick={toggleWatchlist}
-                    className="w-full text-left p-6 flex items-center justify-between group"
-                  >
-                    <div>
-                      <h3 className="font-bold text-white flex items-center gap-2">
-                        {inWatchlist ? <Star size={20} className="fill-[#8B5CF6] text-[#8B5CF6]" /> : <Star size={20} className="text-[#9CA3AF] group-hover:text-white" />} 
-                        {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
-                      </h3>
-                      <p className="text-xs text-[#9CA3AF] mt-1">Track this stock's performance</p>
+                <div className="relative">
+                  <BorderGlow borderRadius={24} glowColor="258 90 66" colors={["#6366F1", "#8B5CF6"]} fillOpacity={0.05}>
+                    <button 
+                      onClick={() => setShowPicker(!showPicker)}
+                      className="w-full text-left p-6 flex items-center justify-between group"
+                    >
+                      <div>
+                        <h3 className="font-bold text-white flex items-center gap-2">
+                          <Star size={20} className="text-[#8B5CF6]" /> 
+                          Watchlists
+                        </h3>
+                        <p className="text-xs text-[#9CA3AF] mt-1">Manage this stock in your lists</p>
+                      </div>
+                      <Plus size={20} className={`text-[#8B5CF6] transition-transform ${showPicker ? "rotate-45" : ""}`} />
+                    </button>
+                  </BorderGlow>
+
+                  {showPicker && (
+                    <div className="absolute top-full left-0 right-0 mt-2 glass-strong rounded-2xl p-2 z-50 border border-[#8B5CF6]/30 shadow-2xl animate-in fade-in slide-in-from-top-2">
+                      {watchlists.map(wl => (
+                        <button
+                          key={wl.id}
+                          onClick={() => handleAddToWatchlist(wl.id)}
+                          className="w-full text-left px-4 py-3 rounded-xl hover:bg-[#8B5CF6]/20 text-sm font-semibold text-white transition-colors flex items-center justify-between"
+                        >
+                          {wl.name}
+                          <span className="text-[10px] text-[#9CA3AF]">Add symbol</span>
+                        </button>
+                      ))}
+                      {watchlists.length === 0 && (
+                        <p className="p-4 text-xs text-[#9CA3AF] text-center">No watchlists found.</p>
+                      )}
                     </div>
-                    {!inWatchlist && <Plus size={20} className="text-[#8B5CF6]" />}
-                  </button>
-                </BorderGlow>
-              </div>
+                  )}
+                </div>
 
             </div>
           ) : (

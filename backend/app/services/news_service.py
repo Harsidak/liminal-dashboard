@@ -2,7 +2,9 @@ import httpx
 import logging
 from typing import List, Dict
 from app.core.config import settings
-
+import os 
+import dotenv
+dotenv.load_dotenv()
 logger = logging.getLogger(__name__)
 
 # A simple in-memory cache to prevent hitting rate limits
@@ -40,7 +42,7 @@ async def fetch_market_news() -> List[dict]:
             {"title": "Crude oil prices stabilize, easing inflation fears for India", "description": "Brent crude dipped to $78 per barrel, providing relief to India's fiscal deficit and fuel retailers.", "url": "https://www.cnbc.com/markets", "source": {"name": "CNBC"}},
         ]
 
-    url = "https://newsapi.org/v2/top-headlines"
+    url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={NEWS_API}"
     params = {
         "category": "business",
         "country": "in",  # India specific business news

@@ -92,37 +92,100 @@ const MarketSnapshotCard = ({ title, data }: { title: string, data?: StockPrice 
   );
 };
 
-const WatchlistSection = ({ items, onRemove, navigate }: { items: StockPrice[], onRemove: (s: string) => void, navigate: any }) => {
-  if (items.length === 0) return null;
+const WatchlistSection = ({ 
+  watchlists, 
+  activeListId, 
+  onSwitch, 
+  onCreate, 
+  onDeleteList, 
+  items, 
+  onRemoveItem, 
+  navigate 
+}: { 
+  watchlists: any[], 
+  activeListId: string | null, 
+  onSwitch: (id: string) => void,
+  onCreate: () => void,
+  onDeleteList: (id: string) => void,
+  items: StockPrice[], 
+  onRemoveItem: (s: string) => void, 
+  navigate: any 
+}) => {
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Clock size={18} className="text-[#8B5CF6]" /> Your Watchlist</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <Clock size={18} className="text-[#8B5CF6]" /> Watchlists
+        </h2>
+        <button 
+          onClick={onCreate}
+          className="text-xs font-bold text-[#8B5CF6] hover:text-white flex items-center gap-1 transition-colors px-3 py-1.5 rounded-lg bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/30 border border-[#8B5CF6]/20"
+        >
+          <Zap size={14} /> Create New
+        </button>
       </div>
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
-        {items.map(item => {
-          const isPositive = item.change >= 0;
-          return (
-            <div
-              key={item.symbol}
-              onClick={() => navigate(`/stock/${item.symbol}`)}
-              className="glass rounded-xl p-4 min-w-[200px] shrink-0 cursor-pointer hover:scale-[1.02] transition-transform relative group"
+
+      {/* Watchlist Tabs */}
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
+        {watchlists.map(list => (
+          <div key={list.id} className="flex items-center group/tab">
+            <button
+              onClick={() => onSwitch(list.id)}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap border ${
+                activeListId === list.id 
+                  ? "bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-[0_0_20px_rgba(139,92,246,0.3)]" 
+                  : "bg-white/5 text-slate-400 border-white/5 hover:bg-white/10"
+              }`}
             >
-              <button
-                onClick={(e) => { e.stopPropagation(); onRemove(item.symbol); }}
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-[#9CA3AF] hover:text-white transition-opacity bg-black/40 rounded-full"
+              {list.name}
+            </button>
+            {watchlists.length > 1 && activeListId === list.id && (
+              <button 
+                onClick={() => onDeleteList(list.id)}
+                className="ml-[-10px] z-10 opacity-0 group-hover/tab:opacity-100 transition-opacity bg-red-500 text-white rounded-full p-1 shadow-lg hover:scale-110 active:scale-95 translate-x-2"
+                title="Delete watchlist"
               >
-                ×
+                <TrendingDown size={12} className="rotate-45" /> 
               </button>
-              <h3 className="font-bold text-white truncate max-w-[150px]">{item.name || item.symbol.replace(".NS", "")}</h3>
-              <p className="text-sm text-[#9CA3AF] mt-1">₹{item.current_price.toLocaleString("en-IN")}</p>
-              <p className={`text-xs mt-2 ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
-                {isPositive ? "+" : ""}{item.change_percent.toFixed(2)}%
-              </p>
-            </div>
-          );
-        })}
+            )}
+          </div>
+        ))}
       </div>
+
+      {/* Items Grid */}
+      {items.length === 0 ? (
+        <div className="glass rounded-2xl p-10 text-center border-dashed border-white/10">
+          <p className="text-[#9CA3AF] text-sm mb-4">This watchlist is empty. Add some stocks to track them!</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold font-mono">Tip: Use the search bar above to find and add stocks</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {items.map(item => {
+            const isPositive = item.change >= 0;
+            return (
+              <div
+                key={item.symbol}
+                onClick={() => navigate(`/stock/${item.symbol}`)}
+                className="glass rounded-xl p-4 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all relative group overflow-hidden"
+              >
+                <div className={`absolute top-0 left-0 w-1 h-full ${isPositive ? "bg-emerald-500/50" : "bg-red-500/50"}`} />
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRemoveItem(item.symbol); }}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-[#9CA3AF] hover:text-white transition-opacity bg-black/40 rounded-full"
+                >
+                  ×
+                </button>
+                <h3 className="font-bold text-white text-sm truncate pr-4">{item.symbol.replace(".NS", "")}</h3>
+                <p className="text-[10px] text-[#9CA3AF] truncate mb-3">{item.name}</p>
+                <p className="text-sm font-mono font-bold text-white">₹{item.current_price.toLocaleString("en-IN")}</p>
+                <p className={`text-[10px] font-bold mt-1 inline-block px-1.5 py-0.5 rounded ${isPositive ? "text-emerald-400 bg-emerald-400/5" : "text-red-400 bg-red-400/5"}`}>
+                  {isPositive ? "+" : ""}{item.change_percent.toFixed(2)}%
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -156,29 +219,86 @@ const Dashboard = () => {
   const [snapshot, setSnapshot] = useState<StockPrice[]>([]);
   const [movers, setMovers] = useState<{ gainers: StockPrice[], losers: StockPrice[] } | null>(null);
   const [news, setNews] = useState<NewsArticle[]>([]);
-  const [watchlist, setWatchlist] = useState<StockPrice[]>([]);
+  
+  // Watchlist state
+  const [watchlists, setWatchlists] = useState<any[]>([]);
+  const [activeListId, setActiveListId] = useState<string | null>(null);
+  const [watchlistItems, setWatchlistItems] = useState<StockPrice[]>([]);
+  
   const [activeTheme, setActiveTheme] = useState<string | null>(null);
   const [themeStocks, setThemeStocks] = useState<StockPrice[]>([]);
+
+  const fetchWatchlists = async () => {
+    try {
+      const res = await api.getWatchlists();
+      setWatchlists(res);
+      if (res.length > 0 && !activeListId) {
+        setActiveListId(res[0].id);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchWatchlistItems = async (id: string) => {
+    try {
+      const res = await api.getWatchlistDetail(id);
+      setWatchlistItems(res.items);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [snapRes, movRes, newsRes, watchRes] = await Promise.all([
+        const [snapRes, movRes, newsRes] = await Promise.all([
           api.getMarketSnapshot(),
           api.getMarketMovers(),
           api.getNews(),
-          api.getWatchlist().catch(() => []) // ok if empty
         ]);
         setSnapshot(snapRes || []);
         setMovers(movRes || null);
         setNews(newsRes || []);
-        setWatchlist(watchRes || []);
+        fetchWatchlists();
       } catch (err) {
         console.error(err);
       }
     };
     fetchAll();
   }, []);
+
+  useEffect(() => {
+    if (activeListId) {
+      fetchWatchlistItems(activeListId);
+    }
+  }, [activeListId]);
+
+  const handleCreateWatchlist = async () => {
+    const name = prompt("Enter watchlist name:");
+    if (!name) return;
+    try {
+      const newList = await api.createWatchlist(name);
+      setWatchlists(prev => [...prev, newList]);
+      setActiveListId(newList.id);
+    } catch (e) {
+      alert("Failed to create watchlist");
+    }
+  };
+
+  const handleDeleteWatchlist = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this watchlist?")) return;
+    try {
+      await api.deleteWatchlist(id);
+      const remaining = watchlists.filter(l => l.id !== id);
+      setWatchlists(remaining);
+      if (activeListId === id) {
+        setActiveListId(remaining.length > 0 ? remaining[0].id : null);
+      }
+    } catch (e) {
+      alert("Failed to delete watchlist");
+    }
+  };
 
   const fetchTheme = async (theme: string) => {
     setActiveTheme(theme);
@@ -192,9 +312,10 @@ const Dashboard = () => {
   };
 
   const removeFromWatchlist = async (symbol: string) => {
+    if (!activeListId) return;
     try {
-      await api.removeFromWatchlist(symbol);
-      setWatchlist(w => w.filter(x => x.symbol !== symbol));
+      await api.removeFromWatchlist(symbol, activeListId);
+      setWatchlistItems(w => w.filter(x => x.symbol !== symbol));
     } catch (e) {
       console.error(e);
     }
@@ -215,7 +336,16 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <WatchlistSection items={watchlist} onRemove={removeFromWatchlist} navigate={navigate} />
+        <WatchlistSection 
+          watchlists={watchlists}
+          activeListId={activeListId}
+          onSwitch={setActiveListId}
+          onCreate={handleCreateWatchlist}
+          onDeleteList={handleDeleteWatchlist}
+          items={watchlistItems} 
+          onRemoveItem={removeFromWatchlist} 
+          navigate={navigate} 
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">

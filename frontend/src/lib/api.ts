@@ -181,6 +181,18 @@ export type StockPrice = {
   market_cap: number | null;
 };
 
+export interface Watchlist {
+  id: string;
+  name: string;
+  item_count: number;
+  created_at: string;
+}
+
+export interface WatchlistDetail extends Watchlist {
+  user_id: string;
+  items: StockPrice[];
+}
+
 export async function getStockPrice(symbol: string) {
   return request<StockPrice>(`/stocks/price/${symbol}`);
 }
@@ -239,19 +251,37 @@ export async function getNews() {
   return request<NewsArticle[]>("/news");
 }
 
+export async function getWatchlists() {
+  return request<Watchlist[]>("/watchlists");
+}
+
+export async function createWatchlist(name: string) {
+  return request<Watchlist>("/watchlists", { method: "POST", body: { name } });
+}
+
+export async function getWatchlistDetail(id: string) {
+  return request<WatchlistDetail>(`/watchlists/${id}`);
+}
+
+export async function deleteWatchlist(id: string) {
+  return request<{ message: string }>(`/watchlists/${id}`, { method: "DELETE" });
+}
+
 export async function getWatchlist() {
   return request<StockPrice[]>("/watchlist");
 }
 
-export async function addToWatchlist(symbol: string) {
-  return request<{ message: string; symbol: string }>("/watchlist", {
+export async function addToWatchlist(symbol: string, watchlistId?: string) {
+  const endpoint = watchlistId ? `/watchlists/${watchlistId}/items` : "/watchlist";
+  return request<{ message: string; symbol: string }>(endpoint, {
     method: "POST",
     body: { symbol },
   });
 }
 
-export async function removeFromWatchlist(symbol: string) {
-  return request<{ message: string; symbol: string }>(`/watchlist/${symbol}`, {
+export async function removeFromWatchlist(symbol: string, watchlistId?: string) {
+  const endpoint = watchlistId ? `/watchlists/${watchlistId}/items/${symbol}` : `/watchlist/${symbol}`;
+  return request<{ message: string; symbol: string }>(endpoint, {
     method: "DELETE",
   });
 }
@@ -293,6 +323,10 @@ export const api = {
   getMarketMovers,
   getNews,
   getWatchlist,
+  getWatchlists,
+  createWatchlist,
+  getWatchlistDetail,
+  deleteWatchlist,
   addToWatchlist,
   removeFromWatchlist,
   sendChatMessage,

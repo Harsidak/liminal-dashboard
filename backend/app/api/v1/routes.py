@@ -15,22 +15,25 @@ from app.schemas import (
     UserRegister, UserLogin, TokenResponse, UserResponse,
     PortfolioCreate, PortfolioResponse
 )
+from app.schemas.stock import StockPriceResponse, StockHistoryResponse, BatchPriceRequest, BatchPriceResponse
+from app.schemas.watchlist import WatchlistCreate, WatchlistResponse, WatchlistSimpleResponse, WatchlistItemAdd
+from app.schemas.cas import CASUploadResponse, HoldingResponse, PortfolioSummary, AllocationResponse
 from app.schemas.simulation import SimulationCreate, SimulationResponse
 from app.schemas.explainer import AssetExplainRequest, ExplainerResponse
-from app.schemas.chat import ChatHistoryResponse, ChatMessageResponse, ChatRequest
-from app.schemas.stress import StressTestResponse, StressTestRequest
-from app.schemas.cas import CASUploadResponse, HoldingResponse, PortfolioSummary, AllocationResponse
-from app.schemas.stock import StockPriceResponse, StockHistoryResponse, BatchPriceRequest, BatchPriceResponse
+from app.schemas.stress import StressTestResponse
+from app.schemas.chat import ChatRequest, ChatHistoryResponse, ChatMessageResponse
+
 from app.services.stress_test_service import stress_test_service
 from app.services.stock_service import get_stock_price, get_stock_history, get_batch_prices, update_holding_prices, search_tickers
 from app.services.analytics_service import get_portfolio_summary, get_allocation
 from app.services.news_service import fetch_market_news
-from app.services.watchlist_service import get_watchlist_items, add_to_watchlist, remove_from_watchlist
 from app.services.chatbot_service import chat_with_user
-from pydantic import BaseModel
+from app.services.cas_parser import decrypt_and_parse
+from app.services.simulation_service import create_simulation, get_simulation
+from app.services.explainer_service import explain_asset
 
-class WatchlistAddRequest(BaseModel):
-    symbol: str
+from typing import List
+from pydantic import BaseModel
 
 router = APIRouter()
 bearer_scheme = HTTPBearer()
@@ -430,35 +433,115 @@ async def get_collection(theme: str):
     results, _ = await get_batch_prices(symbols)
     return results
 
-@router.get("/watchlist")
-async def get_watchlist(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
-    symbols = await get_watchlist_items(db, current_user.id)
-    if not symbols:
-        return []
-    results, _ = await get_batch_prices(symbols)
-    return results
+# ─── WATCHLISTS (MULTI-LIST) ──────────────────────────────────────────────────
 
-@router.post("/watchlist")
-async def add_watchlist(
-    body: WatchlistAddRequest,
+@router.get("/watchlists", response_model=List[WatchlistSimpleResponse])
+async def list_watchlists(
+    db: AsyncSession = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    from app.services.watchlist_service import get_user_watchlists
+    lists = await get_user_watchlists(db, current_user.id)
+    return [
+        WatchlistSimpleResponse(
+            id=l.id,
+            name=l.name,
+            item_count=len(l.items),
+            created_at=l.created_at
+        ) for l in lists
+    ]
+
+@router.post("/watchlists", response_model=WatchlistSimpleResponse)
+async def create_new_watchlist(
+    body: WatchlistCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    added = await add_to_watchlist(db, current_user.id, body.symbol.upper())
-    if not added:
-        raise HTTPException(status_code=400, detail="Symbol already in watchlist")
-    return {"message": "Added successfully", "symbol": body.symbol.upper()}
+    from app.services.watchlist_service import create_watchlist
+    l = await create_watchlist(db, current_user.id, body.name)
+    return WatchlistSimpleResponse(
+        id=l.id,
+        name=l.name,
+        item_count=0,
+        created_at=l.created_at
+    )
 
-@router.delete("/watchlist/{symbol}")
-async def remove_watchlist(
+@router.get("/watchlists/{watchlist_id}", response_model=WatchlistResponse)
+async def get_watchlist_details(
+    watchlist_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    from app.services.watchlist_service import get_watchlist_by_id, get_watchlist_items
+    l = await get_watchlist_by_id(db, current_user.id, watchlist_id)
+    if not l:
+        raise HTTPException(status_code=404, detail="Watchlist not found")
+    
+    symbols = await get_watchlist_items(db, watchlist_id)
+    prices = []
+    if symbols:
+        prices, _ = await get_batch_prices(symbols)
+        
+    return WatchlistResponse(
+        id=l.id,
+        user_id=l.user_id,
+        name=l.name,
+        items=prices,
+        created_at=l.created_at
+    )
+
+@router.delete("/watchlists/{watchlist_id}")
+async def remove_watchlist_list(
+    watchlist_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    from app.services.watchlist_service import delete_watchlist
+    success = await delete_watchlist(db, current_user.id, watchlist_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Watchlist not found")
+    return {"message": "Watchlist deleted"}
+
+@router.post("/watchlists/{watchlist_id}/items")
+async def add_item_to_list(
+    watchlist_id: str,
+    body: WatchlistItemAdd,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    from app.services.watchlist_service import get_watchlist_by_id, add_to_watchlist
+    l = await get_watchlist_by_id(db, current_user.id, watchlist_id)
+    if not l:
+        raise HTTPException(status_code=404, detail="Watchlist not found")
+        
+    added = await add_to_watchlist(db, watchlist_id, body.symbol.upper())
+    if not added:
+        raise HTTPException(status_code=400, detail="Symbol already in list")
+    return {"message": "Added to watchlist"}
+
+@router.delete("/watchlists/{watchlist_id}/items/{symbol}")
+async def remove_item_from_list(
+    watchlist_id: str,
     symbol: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    removed = await remove_from_watchlist(db, current_user.id, symbol.upper())
-    if not removed:
-        raise HTTPException(status_code=404, detail="Symbol not in watchlist")
-    return {"message": "Removed successfully", "symbol": symbol.upper()}
+    from app.services.watchlist_service import remove_from_watchlist
+    success = await remove_from_watchlist(db, watchlist_id, symbol.upper())
+    if not success:
+        raise HTTPException(status_code=404, detail="Symbol not found in list")
+    return {"message": "Removed from watchlist"}
+
+# Legacy endpoints for backward compatibility
+@router.get("/watchlist")
+async def get_default_watchlist(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    from app.services.watchlist_service import get_user_watchlists, get_watchlist_items
+    lists = await get_user_watchlists(db, current_user.id)
+    if not lists: return []
+    symbols = await get_watchlist_items(db, lists[0].id)
+    if not symbols: return []
+    prices, _ = await get_batch_prices(symbols)
+    return prices
 
 # ─── CHATBOT ────────────────────────────────────────────────────────────────────
 

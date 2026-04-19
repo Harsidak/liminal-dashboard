@@ -22,7 +22,7 @@ class User(Base):
     simulations = relationship("Simulation", back_populates="user")
     cas_uploads = relationship("CASUpload", back_populates="user")
     holdings = relationship("Holding", back_populates="user")
-    watchlist = relationship("Watchlist", uselist=False, back_populates="user", cascade="all, delete-orphan")
+    watchlists = relationship("Watchlist", back_populates="user", cascade="all, delete-orphan")
 
 class Portfolio(Base):
     __tablename__ = "portfolios"
@@ -92,10 +92,11 @@ class Watchlist(Base):
     __tablename__ = "watchlists"
 
     id = Column(String, primary_key=True, default=gen_uuid)
-    user_id = Column(String, ForeignKey("users.id"), nullable=False, unique=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    name = Column(String, default="My Watchlist")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    user = relationship("User", back_populates="watchlist")
+    user = relationship("User", back_populates="watchlists")
     items = relationship("WatchlistItem", back_populates="watchlist", cascade="all, delete-orphan")
 
 class ChatMessage(Base):

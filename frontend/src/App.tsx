@@ -46,6 +46,7 @@ const AnimatedRoutes = () => {
           <Route path="/upload" element={<Navigate to="/profile" replace />} />
           <Route path="/sandbox" element={<Sandbox />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/watchlist" element={<Dashboard />} />
           {/* Legacy redirect */}
           <Route path="/analytics" element={<Navigate to="/portfolio" replace />} />
         </Route>

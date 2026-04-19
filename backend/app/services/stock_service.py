@@ -93,20 +93,40 @@ async def get_stock_price(symbol: str) -> StockPriceResponse:
 
 
 async def get_stock_history(symbol: str, period: str = "6mo") -> StockHistoryResponse:
-    """Fetch historical OHLCV data for a stock."""
+    """Fetch historical OHLCV data for a stock with intelligent granularity."""
     symbol = _ensure_ns_suffix(symbol)
     
     if period not in VALID_PERIODS:
         period = "6mo"
     
+    # Map periods to optimal intervals for charting
+    # 1d -> 5m, 5d -> 15m, 1mo -> 1h, others -> 1d
+    interval = "1d"
+    if period == "1d":
+        interval = "5m"
+    elif period == "5d":
+        interval = "15m"
+    elif period == "1mo":
+        interval = "60m"
+    
     try:
         ticker = yf.Ticker(symbol)
-        hist = ticker.history(period=period)
+        hist = ticker.history(period=period, interval=interval)
         
+        if hist.empty:
+            # Fallback to 1d interval if restricted interval returned nothing
+            hist = ticker.history(period=period, interval="1d")
+
         data = []
         for date, row in hist.iterrows():
+            # For intraday data, include time. For daily, just the date.
+            if interval == "1d":
+                date_str = date.strftime("%Y-%m-%d")
+            else:
+                date_str = date.strftime("%Y-%m-%d %H:%M")
+                
             data.append(StockHistoryPoint(
-                date=date.strftime("%Y-%m-%d"),
+                date=date_str,
                 open=round(row["Open"], 2),
                 high=round(row["High"], 2),
                 low=round(row["Low"], 2),

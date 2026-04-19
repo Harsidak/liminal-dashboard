@@ -10,6 +10,14 @@ class UserRegister(BaseModel):
     full_name: Optional[str] = None
     pan_card: str  # PAN card number (format: AAAAA0000A)
 
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        from app.core.config import settings
+        if len(v) < settings.PASSWORD_MIN_LENGTH:
+            raise ValueError(f"Password must be at least {settings.PASSWORD_MIN_LENGTH} characters long")
+        return v
+
     @field_validator("pan_card")
     @classmethod
     def validate_pan(cls, v: str) -> str:

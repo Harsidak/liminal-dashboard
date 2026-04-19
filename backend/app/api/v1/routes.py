@@ -2,7 +2,7 @@ import os
 import uuid
 import traceback
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
@@ -84,7 +84,8 @@ async def login(body: UserLogin, db: AsyncSession = Depends(get_db)):
     # Verify PAN matches stored hash
     if not verify_password(body.pan_card, user.pan_hash):
         raise HTTPException(status_code=401, detail="Invalid PAN card number")
-    token = create_access_token({"sub": user.id, "pan": body.pan_card})
+    # DO NOT include sensitive data like PAN in JWT (it's base64 and easily decoded)
+    token = create_access_token({"sub": user.id})
     return TokenResponse(
         access_token=token,
         user=UserResponse(
@@ -110,32 +111,19 @@ async def me(current_user: User = Depends(get_current_user)):
 
 # ─── CAS PDF UPLOAD ──────────────────────────────────────────────────────────
 
-@router.post("/cas/upload", response_model=CASUploadResponse, status_code=201)
+@router.post("/cas/upload", response_model=CASUploadResponse)
 async def upload_cas(
     file: UploadFile = File(...),
+    pan: str = Form(..., description="PAN card number for PDF decryption"),
     db: AsyncSession = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    current_user: User = Depends(get_current_user)
 ):
-    """Upload and parse a CAS PDF. The user's PAN (from JWT) is used to decrypt."""
-    # Get user and PAN from token
-    payload = decode_token(credentials.credentials)
-    if not payload:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    
-    user_id = payload.get("sub")
-    pan = payload.get("pan")
-    
-    if not pan:
-        raise HTTPException(status_code=400, detail="PAN not found in token. Please re-login.")
-    
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalar_one_or_none()
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
-    
-    # Validate file
+    """Upload and parse a CAS PDF. PAN must be provided directly."""
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+    
+    user_id = current_user.id
+    pan = pan.strip().upper()
     
     # Create upload record
     upload = CASUpload(
@@ -198,7 +186,7 @@ async def upload_cas(
         await db.commit()
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        traceback.print_exc()
+        print(traceback.format_exc())
         upload.status = "failed"
         upload.error_message = f"Unexpected error: {str(e)}"
         await db.commit()

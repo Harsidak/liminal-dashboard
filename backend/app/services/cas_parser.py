@@ -127,16 +127,22 @@ def decrypt_and_parse(pdf_bytes: bytes, pan: str) -> list[dict]:
     try:
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     except Exception as e:
-        logger.warning(f"Could not open PDF: {e}. Using demo data.")
-        return _get_demo_holdings()
+        from app.core.config import settings
+        if settings.FALLBACK_TO_DEMO:
+            logger.warning(f"Could not open PDF: {e}. Using demo data.")
+            return _get_demo_holdings()
+        raise ValueError(f"Could not open PDF: {str(e)}")
     
     if doc.is_encrypted:
         # Try PAN as password (CAS PDFs are typically encrypted with PAN)
         if not doc.authenticate(pan.upper()):
             if not doc.authenticate(pan.lower()):
                 doc.close()
-                logger.warning("Could not decrypt CAS PDF with provided PAN. Using demo data for hackathon.")
-                return _get_demo_holdings()
+                from app.core.config import settings
+                if settings.FALLBACK_TO_DEMO:
+                    logger.warning("Could not decrypt CAS PDF with provided PAN. Using demo data for hackathon.")
+                    return _get_demo_holdings()
+                raise ValueError("Could not decrypt CAS PDF. Please verify your PAN card number.")
     
     # Extract all text
     full_text = ""
@@ -145,8 +151,11 @@ def decrypt_and_parse(pdf_bytes: bytes, pan: str) -> list[dict]:
     doc.close()
     
     if not full_text.strip():
-        logger.warning("PDF text extraction returned empty. Using demo data.")
-        return _get_demo_holdings()
+        from app.core.config import settings
+        if settings.FALLBACK_TO_DEMO:
+            logger.warning("PDF text extraction returned empty. Using demo data.")
+            return _get_demo_holdings()
+        raise ValueError("The uploaded PDF appears to be empty or unreadable.")
     
     # Parse holdings from the extracted text
     holdings = _extract_holdings(full_text)
@@ -264,10 +273,13 @@ def _extract_holdings_fallback(text: str) -> list[dict]:
             "sector": guess_sector(symbol),
         })
     
-    # If still nothing found, provide demo holdings for hackathon
+    # If still nothing found
     if not holdings:
-        logger.warning("No holdings found in CAS PDF. Using demo data for hackathon prototype.")
-        holdings = _get_demo_holdings()
+        from app.core.config import settings
+        if settings.FALLBACK_TO_DEMO:
+            logger.warning("No holdings found in CAS PDF. Using demo data for hackathon prototype.")
+            return _get_demo_holdings()
+        raise ValueError("No holdings could be extracted from this PDF. Please ensure it is a valid CAS PDF.")
     
     return holdings
 

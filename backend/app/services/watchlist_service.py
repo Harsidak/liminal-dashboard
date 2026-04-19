@@ -1,12 +1,17 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
+from sqlalchemy.orm import selectinload
 from app.core.models import Watchlist, WatchlistItem
 import uuid
 from typing import List, Optional
 
 async def get_user_watchlists(db: AsyncSession, user_id: str) -> List[Watchlist]:
-    """Returns all watchlists for a user."""
-    result = await db.execute(select(Watchlist).where(Watchlist.user_id == user_id))
+    """Returns all watchlists for a user with items eager-loaded."""
+    result = await db.execute(
+        select(Watchlist)
+        .where(Watchlist.user_id == user_id)
+        .options(selectinload(Watchlist.items))
+    )
     watchlists = result.scalars().all()
     
     # If no watchlists exist, create a default one

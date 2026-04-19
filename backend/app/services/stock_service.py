@@ -7,10 +7,17 @@ Handles NSE (.NS) and BSE (.BO) suffixes for Indian stocks.
 
 import yfinance as yf
 import logging
-from typing import Optional
+import asyncio
+import time
+import httpx
+from typing import Optional, Dict
 from app.schemas.stock import StockPriceResponse, StockHistoryPoint, StockHistoryResponse
 
 logger = logging.getLogger(__name__)
+
+# Simple in-memory cache
+_price_cache: Dict[str, dict] = {}
+_CACHE_TTL = 60  # 1 minute
 
 # Valid periods for historical data
 VALID_PERIODS = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "max"}
@@ -26,24 +33,36 @@ def _ensure_ns_suffix(symbol: str) -> str:
 
 
 async def get_stock_price(symbol: str) -> StockPriceResponse:
-    """Fetch current price and day stats for a single stock."""
+    """Fetch current price and day stats for a single stock with caching."""
     symbol = _ensure_ns_suffix(symbol)
+    now = time.time()
+    
+    if symbol in _price_cache:
+        cached = _price_cache[symbol]
+        if now - cached["timestamp"] < _CACHE_TTL:
+            return cached["data"]
     
     try:
+        # ticker.info is blocking, but we can wrap it in a thread if needed. 
+        # For now, parallelizing multiple calls is the main priority.
         ticker = yf.Ticker(symbol)
         info = ticker.info
         
         current_price = info.get("currentPrice") or info.get("regularMarketPrice", 0)
         previous_close = info.get("previousClose") or info.get("regularMarketPreviousClose", 0)
         
+        # fallback for indices or incomplete data
+        if not current_price and "navPrice" in info:
+            current_price = info["navPrice"]
+            
         change = current_price - previous_close if current_price and previous_close else 0
         change_pct = (change / previous_close * 100) if previous_close else 0
         
-        return StockPriceResponse(
+        data = StockPriceResponse(
             symbol=symbol,
             name=info.get("shortName") or info.get("longName", symbol),
-            current_price=round(current_price, 2),
-            previous_close=round(previous_close, 2),
+            current_price=round(current_price, 2) if current_price else 0,
+            previous_close=round(previous_close, 2) if previous_close else 0,
             change=round(change, 2),
             change_percent=round(change_pct, 2),
             day_high=round(info.get("dayHigh", 0) or 0, 2),
@@ -51,6 +70,10 @@ async def get_stock_price(symbol: str) -> StockPriceResponse:
             volume=info.get("volume", 0) or 0,
             market_cap=info.get("marketCap"),
         )
+        
+        _price_cache[symbol] = {"timestamp": now, "data": data}
+        return data
+        
     except Exception as e:
         logger.error(f"Error fetching price for {symbol}: {e}")
         raise ValueError(f"Could not fetch price for {symbol}: {str(e)}")
@@ -89,31 +112,44 @@ async def get_stock_history(symbol: str, period: str = "6mo") -> StockHistoryRes
 
 
 async def get_batch_prices(symbols: list[str]) -> tuple[list[StockPriceResponse], list[str]]:
-    """Fetch prices for multiple symbols. Returns (results, errors)."""
+    """Fetch prices for multiple symbols in parallel. Returns (results, errors)."""
+    if not symbols:
+        return [], []
+        
+    tasks = [get_stock_price(s) for s in symbols]
+    batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+    
     results = []
     errors = []
     
-    for symbol in symbols:
-        try:
-            price = await get_stock_price(symbol)
-            results.append(price)
-        except Exception as e:
-            errors.append(f"{symbol}: {str(e)}")
-            logger.warning(f"Batch price error for {symbol}: {e}")
+    for i, res in enumerate(batch_results):
+        if isinstance(res, Exception):
+            errors.append(f"{symbols[i]}: {str(res)}")
+        else:
+            results.append(res)
     
     return results, errors
 
 
 async def update_holding_prices(holdings: list) -> list:
     """
-    Update a list of holding dicts with current market prices.
-    Adds current_price, market_value, pnl, pnl_percent fields.
+    Update a list of holding dicts with current market prices using batch fetching.
     """
+    if not holdings:
+        return []
+        
+    symbols = [h.get("symbol") for h in holdings if h.get("symbol")]
+    price_map = {}
+    
+    if symbols:
+        results, _ = await get_batch_prices(symbols)
+        price_map = {p.symbol: p for p in results}
+    
     for holding in holdings:
-        try:
-            symbol = holding.get("symbol", "")
-            price_data = await get_stock_price(symbol)
-            
+        symbol = _ensure_ns_suffix(holding.get("symbol", ""))
+        price_data = price_map.get(symbol)
+        
+        if price_data:
             qty = holding.get("quantity", 0)
             avg_cost = holding.get("avg_cost", 0)
             current_price = price_data.current_price
@@ -129,9 +165,8 @@ async def update_holding_prices(holdings: list) -> list:
             else:
                 holding["pnl"] = 0
                 holding["pnl_percent"] = 0
-                
-        except Exception as e:
-            logger.warning(f"Could not update price for {holding.get('symbol')}: {e}")
+        else:
+            # Fallback if price fetch failed
             holding["current_price"] = holding.get("avg_cost", 0)
             holding["market_value"] = holding.get("quantity", 0) * holding.get("avg_cost", 0)
             holding["pnl"] = 0

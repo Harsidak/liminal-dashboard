@@ -42,10 +42,11 @@ async def fetch_market_news() -> List[dict]:
             {"title": "Crude oil prices stabilize, easing inflation fears for India", "description": "Brent crude dipped to $78 per barrel, providing relief to India's fiscal deficit and fuel retailers.", "url": "https://www.cnbc.com/markets", "source": {"name": "CNBC"}},
         ]
 
-    url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={NEWS_API}"
+    url = "https://newsapi.org/v2/everything"
     params = {
-        "category": "business",
-        "country": "in",  # India specific business news
+        "q": "Indian Stock Market OR Nifty 50 OR Sensex",
+        "sortBy": "publishedAt",
+        "language": "en",
         "apiKey": api_key,
         "pageSize": 5
     }

@@ -24,12 +24,25 @@ VALID_PERIODS = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "max"}
 
 
 def _ensure_ns_suffix(symbol: str) -> str:
-    """Ensure symbol has .NS suffix for NSE stocks. Skip index symbols (^...)."""
-    if symbol.startswith("^"):
-        return symbol  # Index symbols like ^NSEI, ^BSESN don't need a suffix
-    if not symbol.endswith((".NS", ".BO")):
-        return f"{symbol}.NS"
-    return symbol
+    """Ensure symbol has .NS suffix for NSE stocks, but respect global tickers."""
+    symbol = symbol.strip().upper()
+    if symbol.startswith("^") or "." in symbol:
+        return symbol
+    
+    # Common US/Global tickers that should not have .NS appended
+    GLOBAL_TICKERS = {
+        "AAPL", "AMZN", "GOOGL", "GOOG", "MSFT", "TSLA", "META", "NVDA", 
+        "NFLX", "DIS", "PYPL", "ADBE", "INTC", "CSCO", "PEP", "KO"
+    }
+    
+    if symbol in GLOBAL_TICKERS:
+        return symbol
+        
+    # If it's a very short ticker (1-2 chars), it's more likely US than NSE (which are usually 3+)
+    if len(symbol) <= 2:
+        return symbol
+        
+    return f"{symbol}.NS"
 
 
 async def get_stock_price(symbol: str) -> StockPriceResponse:
@@ -207,5 +220,5 @@ async def search_tickers(query: str) -> list[dict]:
             return results
     except Exception as e:
         logger.error(f"Ticker search error for {query}: {e}")
-        # Fallback to simple suffix logic
-        return [{"symbol": f"{query.upper()}.NS", "name": query, "type": "EQUITY", "exch": "NSE"}]
+        # Fallback: return the query as-is if it looks like a symbol
+        return [{"symbol": query.upper(), "name": query, "type": "EQUITY", "exch": "UNKNOWN"}]

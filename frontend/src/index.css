@@ -4,63 +4,60 @@
 
 @layer base {
   :root {
-    /* === LIMINAL AI COLOR SYSTEM ===
-       Deep Background: #2E1E5B → #0B0914
-       Glass Cards: rgba(255,255,255,0.05) → rgba(255,255,255,0.1)
-       Neon Buttons: #6366F1 → #8B5CF6
-       Primary Text: #FFFFFF
-       Secondary Text: #9CA3AF
+    /* === ETHEREAL BLOSSOM COLOR SYSTEM ===
+       Soft Background: #FAF9F6
+       High-end Bloom Gradient: Rose, Lavender, Cream
     */
 
-    --background: 0 0% 0%;        /* #000000 */
-    --foreground: 0 0% 100%;      /* #FFFFFF */
+    --background: 30 20% 98%;
+    --foreground: 224 71% 4%;
 
-    --card: 254 42% 18%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
 
-    --popover: 260 40% 10%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
 
-    /* Neon action: #6366F1 (Indigo) */
-    --primary: 239 84% 67%;
+    /* Brand Primary: Soft Rose (#F43F5E) */
+    --primary: 350 89% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 252 30% 24%;
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 262 83% 95%;
+    --secondary-foreground: 262 83% 30%;
 
-    --muted: 252 22% 20%;
-    --muted-foreground: 220 9% 62%; /* #9CA3AF */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
 
-    /* Neon accent: #8B5CF6 (Bright Purple) */
-    --accent: 258 90% 66%;
-    --accent-foreground: 0 0% 100%;
+    /* Brand Accent: Lavender Mist (#C4B5FD) */
+    --accent: 262 83% 85%;
+    --accent-foreground: 262 83% 40%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 250 28% 28%;
-    --input: 250 28% 28%;
-    --ring: 239 84% 67%;
+    --border: 350 50% 92%;
+    --input: 350 50% 92%;
+    --ring: 350 89% 60%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
-    --glass-bg: 248 72% 86%;
-    --glass-border: 250 84% 76%;
-    --glow-purple: 258 90% 66%;
-    --glow-blue: 239 84% 67%;
+    --glass-bg: 0 0% 100%;
+    --glass-border: 350 50% 88%;
+    --glow-purple: 262 83% 85%;
+    --glow-blue: 199 89% 82%;
 
-    /* Emerald for positive values */
-    --emerald: 160 84% 39%;
-    --rose: 0 84% 60%;
+    /* Sentiment Colors - Boutique Style */
+    --emerald: 158 64% 52%;
+    --rose: 350 89% 60%;
 
-    --sidebar-background: 0 0% 0%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 252 90% 60%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-primary: 350 89% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 270 20% 18%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 270 20% 20%;
-    --sidebar-ring: 252 90% 60%;
+    --sidebar-accent: 350 50% 96%;
+    --sidebar-accent-foreground: 350 89% 60%;
+    --sidebar-border: 350 50% 92%;
+    --sidebar-ring: 350 89% 60%;
   }
 }
 
@@ -72,7 +69,7 @@
   body {
     @apply text-foreground antialiased;
     font-family: 'Inter', 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #000000 !important;
+    background: hsl(var(--background)) !important;
     min-height: 100vh;
   }
 
@@ -120,31 +117,31 @@
   .glass {
     background: linear-gradient(
       160deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(255, 255, 255, 0.02) 55%,
-      rgba(255, 255, 255, 0.06) 100%
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 0.3) 55%,
+      rgba(255, 255, 255, 0.5) 100%
     );
     backdrop-filter: blur(26px);
     -webkit-backdrop-filter: blur(26px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(244, 63, 94, 0.1);
   }
   .glass-strong {
     background: linear-gradient(
       165deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
+      rgba(255, 255, 255, 0.88) 0%,
+      rgba(255, 255, 255, 0.7) 100%
     );
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.15);
   }
   .glow-primary {
-    box-shadow: 0 8px 40px -8px rgba(139, 92, 246, 0.45),
-                0 4px 20px -4px rgba(99, 102, 241, 0.25),
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 40px -8px rgba(244, 63, 94, 0.2),
+                0 4px 20px -4px rgba(139, 92, 246, 0.1),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
   }
   .glow-button {
-    box-shadow: 0 4px 24px -4px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 4px 24px -4px rgba(244, 63, 94, 0.35);
   }
   .gradient-bg {
     min-height: 100vh;
@@ -158,18 +155,18 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
   .text-gradient {
-    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    background: linear-gradient(135deg, #EC4899, #8B5CF6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .neon-button {
-    background: linear-gradient(135deg, #6366F1, #8B5CF6);
-    box-shadow: 0 4px 24px -4px rgba(139, 92, 246, 0.6);
+    background: linear-gradient(135deg, #F43F5E, #C4B5FD);
+    box-shadow: 0 4px 24px -4px rgba(244, 63, 94, 0.4);
     transition: all 0.3s ease;
   }
   .neon-button:hover {
-    box-shadow: 0 6px 32px -4px rgba(139, 92, 246, 0.8);
+    box-shadow: 0 6px 32px -4px rgba(244, 63, 94, 0.6);
     transform: translateY(-1px);
   }
   .scrollbar-none {

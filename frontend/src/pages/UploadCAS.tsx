@@ -63,168 +63,164 @@ const UploadCAS = () => {
   return (
     <PageTransition>
       <AppShell>
-        <div className="pt-6 max-w-2xl mx-auto">
+        <div className="pt-10 max-w-2xl mx-auto space-y-12 pb-20">
           {/* Header */}
-          <div className="text-center mb-8">
-            <GradientText
-              className="text-2xl font-bold mb-2"
-              colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-              animationSpeed={8}
-            >
-              Upload CAS Statement
-            </GradientText>
-            <p className="text-sm text-[#9CA3AF] max-w-md mx-auto">
-              Upload your Consolidated Account Statement (CAS) PDF from CDSL or NSDL.
-              Your PAN will be used to decrypt the document securely.
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl font-black text-slate-800 tracking-tighter">Synchronize Core</h1>
+            <p className="text-[11px] font-black text-rose-500 uppercase tracking-[0.3em] max-w-sm mx-auto">
+              Upload CAS Statement PDF to establish your portfolio link
             </p>
           </div>
 
           {/* Upload Zone */}
-          <BorderGlow
-            borderRadius={24}
-            glowColor="258 90 66"
-            colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-            fillOpacity={0.3}
-          >
-            <div className="p-8">
-              {/* Drag Drop Area */}
-              <div
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-300 cursor-pointer ${
-                  dragActive
-                    ? "border-[#8B5CF6] bg-[#8B5CF6]/10"
-                    : file
-                    ? "border-emerald-400/30 bg-emerald-400/5"
-                    : "border-white/10 hover:border-[#6366F1]/30 hover:bg-white/[0.02]"
-                }`}
-                onClick={() => document.getElementById("cas-file-input")?.click()}
-              >
-                <input
-                  id="cas-file-input"
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileInput}
-                  className="hidden"
-                />
+          <div className="bg-white/70 backdrop-blur-3xl rounded-[2.5rem] border border-rose-100/50 shadow-2xl shadow-rose-500/10 p-10 relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-rose-300 to-transparent opacity-50" />
+            
+            {/* Drag Drop Area */}
+            <div
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              className={`relative border-2 border-dashed rounded-[2rem] p-12 text-center transition-all duration-500 cursor-pointer group ${
+                dragActive
+                  ? "border-rose-400 bg-rose-50/50"
+                  : file
+                  ? "border-emerald-200 bg-emerald-50/20"
+                  : "border-rose-100 hover:border-rose-300 hover:bg-rose-50/30"
+              }`}
+              onClick={() => document.getElementById("cas-file-input")?.click()}
+            >
+              <input
+                id="cas-file-input"
+                type="file"
+                accept=".pdf"
+                onChange={handleFileInput}
+                className="hidden"
+              />
 
-                {file ? (
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="h-14 w-14 rounded-2xl bg-emerald-400/10 flex items-center justify-center">
-                      <FileText size={24} className="text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-white">{file.name}</p>
-                      <p className="text-xs text-[#9CA3AF]">
-                        {(file.size / 1024).toFixed(1)} KB · PDF
-                      </p>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFile(null);
-                        setResult(null);
-                      }}
-                      className="text-xs text-[#9CA3AF] hover:text-red-400 transition-colors"
-                    >
-                      Remove
-                    </button>
+              {file ? (
+                <div className="flex flex-col items-center gap-4 animate-in zoom-in-95 duration-500">
+                  <div className="h-20 w-20 rounded-3xl bg-emerald-50 flex items-center justify-center border border-emerald-100 shadow-inner">
+                    <FileText size={32} className="text-emerald-500 shadow-lg" />
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="h-14 w-14 rounded-2xl bg-[#6366F1]/10 flex items-center justify-center">
-                      <Upload size={24} className="text-[#8B5CF6]" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">
-                        Drop your CAS PDF here
-                      </p>
-                      <p className="text-xs text-[#9CA3AF] mt-1">
-                        or click to browse · PDF only
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-lg font-black text-slate-800 tracking-tight">{file.name}</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                      {(file.size / 1024).toFixed(1)} KB · VALID PDF CORE
+                    </p>
                   </div>
-                )}
-              </div>
-
-              {/* Upload Button */}
-              {file && !result && (
-                <button
-                  onClick={handleUpload}
-                  disabled={uploading}
-                  className="w-full mt-6 py-3 rounded-xl neon-button text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {uploading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      Parsing your portfolio...
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={16} />
-                      Upload & Parse
-                    </>
-                  )}
-                </button>
-              )}
-
-              {/* Result */}
-              {result && (
-                <div className={`mt-6 p-4 rounded-xl border ${
-                  result.status === "parsed"
-                    ? "bg-emerald-400/10 border-emerald-400/20"
-                    : "bg-red-400/10 border-red-400/20"
-                }`}>
-                  <div className="flex items-center gap-3">
-                    {result.status === "parsed" ? (
-                      <CheckCircle2 size={20} className="text-emerald-400 shrink-0" />
-                    ) : (
-                      <XCircle size={20} className="text-red-400 shrink-0" />
-                    )}
-                    <div>
-                      {result.status === "parsed" ? (
-                        <>
-                          <p className="text-sm font-bold text-emerald-400">
-                            Successfully parsed {result.holdings_count} holdings!
-                          </p>
-                          <p className="text-xs text-[#9CA3AF]">
-                            Redirecting to dashboard...
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-sm font-bold text-red-400">Upload Failed</p>
-                          <p className="text-xs text-[#9CA3AF]">
-                            {result.error_message || "Could not parse the CAS PDF"}
-                          </p>
-                        </>
-                      )}
-                    </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFile(null);
+                      setResult(null);
+                    }}
+                    className="mt-2 text-[10px] font-black text-rose-400 hover:text-rose-500 uppercase tracking-widest flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-rose-100 transition-all"
+                  >
+                    <XCircle size={12} /> Discard File
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-6">
+                  <div className="h-20 w-20 rounded-3xl bg-rose-50 flex items-center justify-center border border-rose-100 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                    <Upload size={32} className="text-rose-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-lg font-black text-slate-800 tracking-tight">
+                      Deploy Statement PDF
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                      Drag & Drop or click to browse
+                    </p>
                   </div>
                 </div>
               )}
             </div>
-          </BorderGlow>
+
+            {/* Upload Button */}
+            {file && !result && (
+              <button
+                onClick={handleUpload}
+                disabled={uploading}
+                className="w-full mt-8 py-5 rounded-[1.25rem] bg-slate-800 hover:bg-slate-900 text-white font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-slate-200 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Initializing Parser...
+                  </>
+                ) : (
+                  <>
+                    <Shield size={18} className="stroke-[2.5]" />
+                    Establish Link
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Result */}
+            {result && (
+              <div className={`mt-8 p-6 rounded-3xl border animate-in slide-in-from-top-4 duration-500 ${
+                result.status === "parsed"
+                  ? "bg-emerald-50 border-emerald-100"
+                  : "bg-rose-50 border-rose-100"
+              }`}>
+                <div className="flex items-center gap-4">
+                  {result.status === "parsed" ? (
+                    <div className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                      <CheckCircle2 size={24} className="text-emerald-500" />
+                    </div>
+                  ) : (
+                    <div className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                      <XCircle size={24} className="text-rose-500" />
+                    </div>
+                  )}
+                  <div>
+                    {result.status === "parsed" ? (
+                      <>
+                        <p className="text-sm font-black text-slate-800 tracking-tight">
+                          Sync Successful: {result.holdings_count} Core Assets Identified
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                          Redirecting to primary dashboard...
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm font-black text-slate-800 tracking-tight underline decoration-rose-200 decoration-2">Link Interrupted</p>
+                        <p className="text-[10px] text-rose-400 font-bold uppercase tracking-widest mt-0.5">
+                          {result.error_message || "Could not decouple the encrypted core"}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Security Info */}
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="glass rounded-xl p-4 flex items-start gap-3">
-              <Shield size={18} className="text-[#8B5CF6] shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-bold text-white">PAN-Secured Decryption</p>
-                <p className="text-[10px] text-[#9CA3AF]">
-                  Your PAN is used only to decrypt the PDF and is never stored in plaintext.
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="bg-white/50 p-6 rounded-3xl border border-rose-100/50 flex items-start gap-4 shadow-sm">
+              <div className="h-10 w-10 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0">
+                <Shield size={20} className="text-rose-400" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-black text-slate-800 uppercase tracking-widest">Encrypted Probe</p>
+                <p className="text-[10px] text-slate-400 font-bold leading-relaxed">
+                  Your PAN acts as a temporal key for decryption. We never archive your raw identifier.
                 </p>
               </div>
             </div>
-            <div className="glass rounded-xl p-4 flex items-start gap-3">
-              <Lock size={18} className="text-[#8B5CF6] shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-bold text-white">Data Privacy</p>
-                <p className="text-[10px] text-[#9CA3AF]">
-                  CAS files are processed server-side and deleted after parsing. Holdings data is stored securely.
+            <div className="bg-white/50 p-6 rounded-3xl border border-rose-100/50 flex items-start gap-4 shadow-sm">
+              <div className="h-10 w-10 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0">
+                <Lock size={20} className="text-rose-400" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-black text-slate-800 uppercase tracking-widest">Volatile Cache</p>
+                <p className="text-[10px] text-slate-400 font-bold leading-relaxed">
+                  Statement files are obliterated from our nodes immediately after technical decoupling.
                 </p>
               </div>
             </div>

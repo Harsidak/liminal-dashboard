@@ -75,11 +75,12 @@ type CustomTooltipProps = {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="glass-strong rounded-xl px-4 py-3 shadow-xl border border-primary/20">
-      <p className="text-[11px] text-muted-foreground mb-1">{label}</p>
+    <div className="bg-white/95 backdrop-blur-md rounded-xl px-4 py-3 shadow-xl border border-rose-100/50">
+      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">{label}</p>
       {payload.map((p, i: number) => (
-        <p key={i} className="text-xs font-semibold" style={{ color: p.color }}>
-          {p.name}: {typeof p.value === "number" && p.value > 100 ? `$${p.value.toLocaleString()}` : `${p.value}%`}
+        <p key={i} className="text-xs font-bold flex justify-between gap-4 mb-0.5" style={{ color: p.color === "hsl(var(--primary))" || p.color === "url(#lineGradient)" ? "#E11D48" : p.color }}>
+          <span>{p.name}:</span>
+          <span>{typeof p.value === "number" && p.value > 1000 ? `₹${p.value.toLocaleString()}` : `${p.value}${p.name === "Probability" || p.name === "Impact" ? "%" : ""}`}</span>
         </p>
       ))}
     </div>
@@ -99,25 +100,17 @@ const PerformanceChart = () => (
     </div>
     <ResponsiveContainer width="100%" height={200}>
       <AreaChart data={performanceData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-        <defs>
+    <defs>
           <linearGradient id="glowFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-            <stop offset="50%" stopColor="hsl(var(--accent))" stopOpacity={0.15} />
-            <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+            <stop offset="0%" stopColor="#FB7185" stopOpacity={0.2} />
+            <stop offset="100%" stopColor="#FB7185" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="hsl(var(--primary))" />
-            <stop offset="100%" stopColor="hsl(var(--accent))" />
+            <stop offset="0%" stopColor="#E11D48" />
+            <stop offset="100%" stopColor="#FB7185" />
           </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsla(270, 20%, 30%, 0.3)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
         <XAxis dataKey="month" tick={{ fill: "hsl(240, 5%, 65%)", fontSize: 10 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: "hsl(240, 5%, 65%)", fontSize: 10 }} axisLine={false} tickLine={false} />
         <Tooltip content={<CustomTooltip />} />
@@ -135,12 +128,11 @@ const PerformanceChart = () => (
           type="monotone"
           dataKey="value"
           stroke="url(#lineGradient)"
-          strokeWidth={2.5}
+          strokeWidth={3}
           fill="url(#glowFill)"
           name="Portfolio"
-          filter="url(#glow)"
           dot={false}
-          activeDot={{ r: 5, fill: "hsl(var(--primary))", stroke: "white", strokeWidth: 2 }}
+          activeDot={{ r: 6, fill: "#E11D48", stroke: "white", strokeWidth: 3 }}
         />
       </AreaChart>
     </ResponsiveContainer>
@@ -148,52 +140,44 @@ const PerformanceChart = () => (
 );
 
 const LossChart = () => (
-  <div className="glass rounded-2xl p-4 sm:p-5 mt-4">
-    <div className="flex items-center justify-between mb-4">
+  <div className="bg-white/70 backdrop-blur-xl border border-rose-100/50 rounded-3xl p-6 shadow-xl shadow-rose-500/5">
+    <div className="flex items-center justify-between mb-6">
       <div>
-        <p className="text-xs text-muted-foreground">Loss Probability</p>
-        <p className="text-lg sm:text-xl font-bold text-foreground">Risk Overview</p>
+        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Loss Probability</p>
+        <p className="text-xl font-bold text-slate-800 tracking-tight">Risk Overview</p>
       </div>
-      <Activity size={18} className="text-accent" />
+      <Activity size={20} className="text-rose-400" />
     </div>
-    <ResponsiveContainer width="100%" height={200}>
+    <ResponsiveContainer width="100%" height={220}>
       <LineChart data={lossData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id="lossFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(0, 80%, 55%)" stopOpacity={0.3} />
-            <stop offset="100%" stopColor="hsl(0, 80%, 55%)" stopOpacity={0} />
+            <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.1} />
+            <stop offset="100%" stopColor="#F43F5E" stopOpacity={0} />
           </linearGradient>
-          <filter id="redGlow">
-            <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsla(270, 20%, 30%, 0.3)" vertical={false} />
-        <XAxis dataKey="month" tick={{ fill: "hsl(240, 5%, 65%)", fontSize: 10 }} axisLine={false} tickLine={false} />
-        <YAxis tick={{ fill: "hsl(240, 5%, 65%)", fontSize: 10 }} axisLine={false} tickLine={false} unit="%" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+        <XAxis dataKey="month" tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} unit="%" />
         <Tooltip content={<CustomTooltip />} />
         <Line
           type="monotone"
           dataKey="probability"
-          stroke="hsl(0, 80%, 55%)"
-          strokeWidth={2.5}
+          stroke="#F43F5E"
+          strokeWidth={3}
           name="Probability"
-          filter="url(#redGlow)"
           dot={false}
-          activeDot={{ r: 5, fill: "hsl(0, 80%, 55%)", stroke: "white", strokeWidth: 2 }}
+          activeDot={{ r: 6, fill: "#F43F5E", stroke: "white", strokeWidth: 3 }}
         />
         <Line
           type="monotone"
           dataKey="impact"
-          stroke="hsl(var(--accent))"
+          stroke="#C4B5FD"
           strokeWidth={2}
-          strokeDasharray="5 5"
+          strokeDasharray="6 4"
           name="Impact"
           dot={false}
-          activeDot={{ r: 4, fill: "hsl(var(--accent))", stroke: "white", strokeWidth: 2 }}
+          activeDot={{ r: 5, fill: "#C4B5FD", stroke: "white", strokeWidth: 2 }}
         />
       </LineChart>
     </ResponsiveContainer>
@@ -203,37 +187,37 @@ const LossChart = () => (
 const AIInsights = () => {
   const [risk, setRisk] = useState([50]);
 
-  const riskLabel = risk[0] < 30 ? "Low Risk" : risk[0] < 70 ? "Moderate Risk" : "High Risk";
-  const riskColor = risk[0] < 30 ? "text-emerald-400" : risk[0] < 70 ? "text-amber-400" : "text-red-400";
+  const riskLabel = risk[0] < 30 ? "Secure" : risk[0] < 70 ? "Moderate" : "Elevated";
+  const riskColor = risk[0] < 30 ? "text-emerald-500" : risk[0] < 70 ? "text-amber-500" : "text-rose-500";
 
   return (
     <PageTransition>
       <div className="pt-6">
         <div className="flex items-center gap-2.5 mb-8">
-          <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center glow-button">
-            <BrainCircuit size={20} className="text-accent" />
+          <div className="h-10 w-10 rounded-xl bg-rose-50 flex items-center justify-center shadow-inner">
+            <BrainCircuit size={20} className="text-rose-500" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">AI Insights</h1>
-            <p className="text-xs text-muted-foreground">Predictive analytics and portfolio reasoning</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">AI Insights</h1>
+            <p className="text-xs text-slate-400 font-medium tracking-wide">Predictive analytics and portfolio reasoning</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="performance" className="w-full">
-              <TabsList className="w-full glass rounded-xl border-0 h-12 p-1.5 mb-2">
+              <TabsList className="w-full bg-white/50 border border-rose-100 p-1.5 rounded-2xl shadow-sm h-14 mb-4">
                 <TabsTrigger
                   value="performance"
-                  className="flex-1 rounded-lg data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-none text-sm font-semibold transition-all duration-300"
+                  className="flex-1 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-400 data-[state=active]:to-rose-500 data-[state=active]:text-white font-bold transition-all"
                 >
-                  Portfolio Performance
+                  Growth Analysis
                 </TabsTrigger>
                 <TabsTrigger
                   value="loss"
-                  className="flex-1 rounded-lg data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-none text-sm font-semibold transition-all duration-300"
+                  className="flex-1 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-400 data-[state=active]:to-purple-500 data-[state=active]:text-white font-bold transition-all"
                 >
-                  Risk Probability
+                  Risk Engine
                 </TabsTrigger>
               </TabsList>
 
@@ -247,19 +231,19 @@ const AIInsights = () => {
 
             {/* Hidden on desktop, moved to sidebar */}
             <div className="lg:hidden space-y-6">
-               <div className="glass rounded-2xl p-5">
+               <div className="bg-white/70 backdrop-blur-xl border border-rose-100/50 rounded-3xl p-6 shadow-xl shadow-rose-500/5">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-sm font-semibold text-foreground">Value at Risk</p>
-                  <span className="text-sm font-bold text-primary">{risk[0]}%</span>
+                  <p className="text-sm font-bold text-slate-700">Value at Risk</p>
+                  <span className="text-sm font-extrabold text-rose-500">{risk[0]}%</span>
                 </div>
-                <p className={`text-[11px] font-medium ${riskColor} mb-4`}>{riskLabel}</p>
-                <div className="relative h-6 flex items-center">
+                <p className={`text-[11px] font-bold ${riskColor} mb-6 tracking-wider uppercase`}>{riskLabel}</p>
+                <div className="relative h-6 flex items-center pb-2">
                   <Slider
                     value={risk}
                     onValueChange={setRisk}
                     max={100}
                     step={1}
-                    className="[&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-primary [&_[role=slider]]:to-accent [&_[role=slider]]:border-0 [&_[role=slider]]:glow-button [&_[role=slider]]:h-5 [&_[role=slider]]:w-5"
+                    className="[&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-rose-400 [&_[role=slider]]:to-rose-600 [&_[role=slider]]:border-0 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-rose-300 [&_[role=slider]]:h-5 [&_[role=slider]]:w-5"
                   />
                 </div>
               </div>
@@ -268,52 +252,52 @@ const AIInsights = () => {
 
           <div className="lg:col-span-1 space-y-6">
             {/* Value at Risk Sidebar (Desktop Only) */}
-            <div className="hidden lg:block glass rounded-2xl p-6">
+            <div className="hidden lg:block bg-white/70 backdrop-blur-xl border border-rose-100/50 rounded-3xl p-6 shadow-xl shadow-rose-500/5">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-base font-bold text-foreground">Value at Risk</p>
-                <span className="text-lg font-bold text-primary">{risk[0]}%</span>
+                <p className="text-base font-bold text-slate-800">Value at Risk</p>
+                <span className="text-lg font-extrabold text-rose-500">{risk[0]}%</span>
               </div>
-              <p className={`text-xs font-semibold ${riskColor} mb-6`}>{riskLabel}</p>
-              <div className="mt-4">
+              <p className={`text-[11px] font-bold ${riskColor} mb-8 tracking-wider uppercase`}>{riskLabel}</p>
+              <div className="mt-4 pb-2">
                 <Slider
                   value={risk}
                   onValueChange={setRisk}
                   max={100}
                   step={1}
-                  className="[&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-primary [&_[role=slider]]:to-accent [&_[role=slider]]:border-0 [&_[role=slider]]:glow-button [&_[role=slider]]:h-6 [&_[role=slider]]:w-6"
+                  className="[&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-rose-400 [&_[role=slider]]:to-rose-600 [&_[role=slider]]:border-0 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-rose-300 [&_[role=slider]]:h-6 [&_[role=slider]]:w-6"
                 />
               </div>
-              <div className="flex justify-between mt-4">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Safe</span>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Risky</span>
+              <div className="flex justify-between mt-6">
+                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Safe</span>
+                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Risky</span>
               </div>
             </div>
 
             {/* AI Explanations */}
-            <div className="glass-strong rounded-2xl overflow-hidden">
-              <div className="p-5 border-b border-border/50">
-                <h2 className="text-base font-bold text-foreground">AI Intelligence</h2>
-                <p className="text-[10px] text-muted-foreground">Deep analysis of portfolio shifts</p>
+            <div className="bg-white/70 backdrop-blur-xl border border-rose-100/50 rounded-3xl overflow-hidden shadow-xl shadow-rose-500/5">
+              <div className="p-5 border-b border-rose-50">
+                <h2 className="text-base font-bold text-slate-800">Market Intelligence</h2>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">AI Reasoning Core</p>
               </div>
-              <div className="p-2 space-y-2">
+              <div className="p-3 space-y-2">
                 {explanations.map((e, i) => (
                   <div
                     key={i}
-                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-all duration-300 cursor-pointer group"
+                    className="flex items-start gap-4 p-4 rounded-2xl hover:bg-rose-50/50 transition-all duration-300 cursor-pointer group border border-transparent hover:border-rose-100"
                   >
-                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${e.color === "text-emerald-400" ? "bg-emerald-400/10" : "bg-red-400/10"}`}>
-                      <e.icon size={16} className={`${e.color}`} />
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${e.color === "text-emerald-400" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
+                      <e.icon size={18} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start mb-0.5">
-                        <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                      <div className="flex justify-between items-start mb-1">
+                        <p className="text-sm font-bold text-slate-700 truncate group-hover:text-rose-600 transition-colors">
                           {e.title}
                         </p>
-                        <span className="text-[9px] text-muted-foreground shrink-0 ml-2">
+                        <span className="text-[9px] text-slate-400 font-bold tracking-wider shrink-0 ml-2">
                           {e.time}
                         </span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
+                      <p className="text-[11px] text-slate-500 font-medium leading-relaxed line-clamp-2">
                         {e.desc}
                       </p>
                     </div>

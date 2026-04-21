@@ -40,149 +40,132 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        {/* Logo / Brand */}
-        <div className="text-center mb-8">
-          <GradientText
-            className="text-4xl font-bold mb-2"
-            colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-            animationSpeed={6}
-          >
-            Liminal AI
-          </GradientText>
-          <p className="text-sm text-[#9CA3AF]">
-            Create your account to start analyzing your portfolio
-          </p>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-rose-50 via-white to-rose-50/30">
+      {/* Decorative Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] right-[10%] w-[600px] h-[600px] rounded-full bg-rose-200/20 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-rose-100/30 blur-[100px]" />
+      </div>
+
+      <div className="w-full max-w-[460px] relative z-10 space-y-10">
+        {/* Brand/Logo Section */}
+        <div className="text-center space-y-6">
+          <div className="inline-flex items-center justify-center h-20 w-20 rounded-3xl bg-white shadow-2xl shadow-rose-500/10 border border-rose-100/50 p-1">
+             <div className="h-full w-full rounded-[1.25rem] bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center shadow-inner">
+               <Sparkles size={32} className="text-white" />
+             </div>
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-black text-slate-800 tracking-tighter">Liminal AI</h1>
+            <p className="text-[11px] font-black text-rose-500 uppercase tracking-[0.3em]">The Ethereal Trading Floor</p>
+          </div>
         </div>
 
         {/* Signup Card */}
-        <BorderGlow
-          className="w-full"
-          borderRadius={24}
-          glowColor="258 90 66"
-          colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-          fillOpacity={0.3}
-        >
-          <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-10 rounded-xl bg-[#6366F1]/20 flex items-center justify-center">
-                <UserPlus size={20} className="text-[#8B5CF6]" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Create Account</h2>
-                <p className="text-xs text-[#9CA3AF]">Join the future of investing</p>
+        <div className="bg-white/70 backdrop-blur-3xl rounded-[2.5rem] border border-rose-100/50 shadow-2xl shadow-rose-500/10 p-10 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-rose-300 to-transparent opacity-50" />
+          
+          <div className="flex items-center gap-4 mb-10">
+            <div className="h-12 w-12 rounded-2xl bg-rose-50 flex items-center justify-center shadow-inner border border-rose-100/50">
+              <UserPlus size={20} className="text-rose-500" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-800 tracking-tight">Create Identity</h2>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Initialize your wealth core</p>
+            </div>
+          </div>
+
+          {error && (
+            <div className="mb-8 p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold animate-in fade-in slide-in-from-top-2">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors">
+                  <User size={18} />
+                </div>
+                <input
+                  type="text" required value={form.full_name}
+                  onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                  placeholder="EXECUTIVE NAME" 
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/50 border border-rose-100 focus:border-rose-400 focus:bg-white outline-none text-slate-800 font-bold text-sm transition-all shadow-sm placeholder:text-slate-300 placeholder:font-black placeholder:text-[10px] placeholder:tracking-widest"
+                />
               </div>
             </div>
 
-            {error && (
-              <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Full Name */}
-              <div>
-                <label className="text-xs text-[#9CA3AF] mb-1.5 block">Full Name</label>
-                <div className="relative">
-                  <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                  <input
-                    type="text"
-                    required
-                    value={form.full_name}
-                    onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                    placeholder="John Doe"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-[#9CA3AF]/50 focus:outline-none focus:border-[#6366F1]/50 focus:ring-1 focus:ring-[#6366F1]/30 transition-all"
-                  />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Universal Identifier</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors">
+                  <Mail size={18} />
                 </div>
+                <input
+                  type="email" required value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="EMAIL@ACCESS.CORE" 
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/50 border border-rose-100 focus:border-rose-400 focus:bg-white outline-none text-slate-800 font-bold text-sm transition-all shadow-sm placeholder:text-slate-300 placeholder:font-black placeholder:text-[10px] placeholder:tracking-widest"
+                />
               </div>
+            </div>
 
-              {/* Email */}
-              <div>
-                <label className="text-xs text-[#9CA3AF] mb-1.5 block">Email</label>
-                <div className="relative">
-                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-[#9CA3AF]/50 focus:outline-none focus:border-[#6366F1]/50 focus:ring-1 focus:ring-[#6366F1]/30 transition-all"
-                  />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cryptographic Key</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors">
+                  <Lock size={18} />
                 </div>
+                <input
+                  type={showPassword ? "text" : "password"} required value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  placeholder="••••••••"
+                  className="w-full pl-12 pr-12 py-4 rounded-2xl bg-white/50 border border-rose-100 focus:border-rose-400 focus:bg-white outline-none text-slate-800 font-bold text-sm transition-all shadow-sm placeholder:text-slate-300"
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-rose-400 transition-colors">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
+            </div>
 
-              {/* Password */}
-              <div>
-                <label className="text-xs text-[#9CA3AF] mb-1.5 block">Password</label>
-                <div className="relative">
-                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    minLength={6}
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    placeholder="Min 6 characters"
-                    className="w-full pl-10 pr-11 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-[#9CA3AF]/50 focus:outline-none focus:border-[#6366F1]/50 focus:ring-1 focus:ring-[#6366F1]/30 transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-white transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">PAN Verification</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors">
+                  <CreditCard size={18} />
                 </div>
+                <input
+                  type="text" required maxLength={10} value={form.pan_card}
+                  onChange={(e) => setForm({ ...form, pan_card: e.target.value.toUpperCase() })}
+                  placeholder="ABCDE1234F"
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/50 border border-rose-100 focus:border-rose-400 focus:bg-white outline-none text-slate-800 font-bold text-sm tracking-[0.2em] uppercase transition-all shadow-sm placeholder:text-slate-300 placeholder:tracking-widest"
+                />
               </div>
+            </div>
 
-              {/* PAN Card */}
-              <div>
-                <label className="text-xs text-[#9CA3AF] mb-1.5 block">PAN Card Number</label>
-                <div className="relative">
-                  <CreditCard size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                  <input
-                    type="text"
-                    required
-                    maxLength={10}
-                    value={form.pan_card}
-                    onChange={(e) => setForm({ ...form, pan_card: e.target.value.toUpperCase() })}
-                    placeholder="ABCDE1234F"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-[#9CA3AF]/50 focus:outline-none focus:border-[#6366F1]/50 focus:ring-1 focus:ring-[#6366F1]/30 transition-all uppercase tracking-wider"
-                  />
-                </div>
-                <p className="text-[10px] text-[#9CA3AF]/60 mt-1">
-                  Your PAN is used to decrypt CAS PDFs. We never store it in plaintext.
-                </p>
-              </div>
+            <button type="submit" disabled={loading} className="w-full py-5 rounded-[1.25rem] bg-slate-800 hover:bg-slate-900 text-white font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-slate-200 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3">
+              {loading ? (
+                <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <><UserPlus size={18} className="stroke-[2.5]" /> Initialize Core</>
+              )}
+            </button>
+          </form>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 rounded-xl neon-button text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <UserPlus size={16} />
-                    Create Account
-                  </>
-                )}
-              </button>
-            </form>
-
-            <p className="text-center text-sm text-[#9CA3AF] mt-6">
-              Already have an account?{" "}
-              <Link to="/login" className="text-[#8B5CF6] hover:text-[#A78BFA] font-medium transition-colors">
-                Sign In
-              </Link>
+          <div className="mt-10 text-center">
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+              Already joined? <Link to="/login" className="text-rose-500 hover:text-rose-600 ml-1 decoration-rose-100 underline-offset-4 hover:underline transition-all">Identity Access</Link>
             </p>
           </div>
-        </BorderGlow>
+        </div>
+
+        <div className="text-center space-y-2 pb-10">
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.25em] flex items-center justify-center gap-2">
+            <Lock size={12} className="text-rose-200" /> End-to-End Encrypted Access
+          </p>
+        </div>
       </div>
     </div>
   );

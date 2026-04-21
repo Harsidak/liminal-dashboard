@@ -75,9 +75,9 @@ const StockDetail = () => {
         <div className="pt-2 pb-10">
           <button 
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-[#9CA3AF] hover:text-white transition-colors mb-6"
+            className="flex items-center gap-2 text-slate-400 hover:text-rose-500 transition-colors mb-6 font-bold text-xs uppercase tracking-widest"
           >
-            <ArrowLeft size={16} /> Back
+            <ArrowLeft size={14} className="stroke-[3]" /> Back to market
           </button>
 
           {loading && !price ? (
@@ -92,62 +92,60 @@ const StockDetail = () => {
               <div className="lg:col-span-2 space-y-6">
                 
                 {/* Header Information */}
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <div className={`h-12 w-12 rounded-xl flex items-center justify-center font-bold text-lg ${isPositive ? "bg-emerald-400/10 text-emerald-400" : "bg-red-400/10 text-red-400"}`}>
+                <div className="flex items-start justify-between bg-white/70 backdrop-blur-xl p-6 rounded-3xl border border-rose-100/50 shadow-xl shadow-rose-500/5">
+                    <div className="flex items-center gap-4">
+                      <div className={`h-14 w-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner ${isPositive ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
                         {price.symbol.charAt(0)}
                       </div>
                       <div>
-                        <h1 className="text-2xl font-bold text-white tracking-tight">{price.name || price.symbol.replace(".NS", "")}</h1>
-                        <p className="text-sm text-[#9CA3AF] font-medium">{price.symbol}</p>
+                        <h1 className="text-3xl font-black text-slate-800 tracking-tight leading-none mb-1">{price.name || price.symbol.replace(".NS", "")}</h1>
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">{price.symbol}</p>
                       </div>
                     </div>
+                    
+                    <div className="text-right">
+                      <h2 className="text-3xl font-black text-slate-800 mb-1 leading-none">₹{price.current_price.toLocaleString("en-IN")}</h2>
+                      <p className={`text-sm font-bold flex items-center justify-end gap-1 ${isPositive ? "text-emerald-500" : "text-rose-500"}`}>
+                        {isPositive ? <TrendingUp size={16} className="stroke-[3]" /> : <TrendingDown size={16} className="stroke-[3]" />}
+                        {isPositive ? "+" : ""}{price.change.toLocaleString("en-IN")} ({price.change_percent.toFixed(2)}%)
+                      </p>
+                    </div>
                   </div>
-                  
-                  <div className="text-right">
-                    <h2 className="text-3xl font-bold text-white mb-1">₹{price.current_price.toLocaleString("en-IN")}</h2>
-                    <p className={`text-sm font-semibold flex items-center justify-end gap-1 ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
-                      {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                      {isPositive ? "+" : ""}{price.change.toLocaleString("en-IN")} ({price.change_percent.toFixed(2)}%)
-                    </p>
-                  </div>
-                </div>
 
                 {/* Chart Section */}
-                <div className="glass-strong rounded-3xl p-6">
-                  <div className="flex justify-end mb-6 gap-2">
+                <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 border border-rose-100/50 shadow-xl shadow-rose-500/5">
+                  <div className="flex justify-end mb-8 gap-2">
                     {PERIODS.map(p => (
                       <button 
                         key={p} 
                         onClick={() => setPeriod(p)}
-                        className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${period === p ? "bg-[#8B5CF6] text-white" : "bg-white/5 text-[#9CA3AF] hover:text-white hover:bg-white/10"}`}
+                        className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${period === p ? "bg-rose-500 text-white shadow-lg shadow-rose-200" : "bg-rose-50 text-slate-400 hover:text-rose-500 hover:bg-rose-100"}`}
                       >
-                        {p.toUpperCase()}
+                        {p}
                       </button>
                     ))}
                   </div>
 
-                  <div className="h-[300px] w-full">
+                  <div className="h-[320px] w-full">
                     {history.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={history} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                           <defs>
                             <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor={colorStr} stopOpacity={0.4}/>
-                              <stop offset="95%" stopColor={colorStr} stopOpacity={0}/>
+                              <stop offset="5%" stopColor={isPositive ? "#10B981" : "#F43F5E"} stopOpacity={0.15}/>
+                              <stop offset="95%" stopColor={isPositive ? "#10B981" : "#F43F5E"} stopOpacity={0}/>
                             </linearGradient>
                           </defs>
                           <Tooltip 
-                            contentStyle={{ background: "rgba(11, 9, 20, 0.9)", border: `1px solid ${colorStr}40`, borderRadius: 12, color: "#fff", fontSize: 12 }}
+                            contentStyle={{ background: "white", border: "1px solid rgba(251,113,133,0.2)", borderRadius: 16, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
                             formatter={(val: number) => [`₹${val.toLocaleString("en-IN")}`, "Price"]}
-                            labelStyle={{ color: "#9CA3AF" }}
+                            labelStyle={{ color: "#94A3B8", fontWeight: 700, textTransform: "uppercase", fontSize: 10 }}
                           />
                           <Area 
                             type="monotone" 
                             dataKey="close" 
-                            stroke={colorStr} 
-                            strokeWidth={3}
+                            stroke={isPositive ? "#10B981" : "#F43F5E"} 
+                            strokeWidth={4}
                             fillOpacity={1} 
                             fill="url(#colorPrice)" 
                             dot={false}
@@ -170,35 +168,35 @@ const StockDetail = () => {
                       { id: "about", icon: Info, label: "About" },
                       { id: "shareholding", icon: Users, label: "Shareholding" }
                     ].map(tab => (
-                      <button
+                        <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`pb-3 font-semibold text-sm flex items-center gap-2 border-b-2 transition-colors ${
-                          activeTab === tab.id ? "border-[#8B5CF6] text-white" : "border-transparent text-[#9CA3AF] hover:text-white"
+                        className={`pb-4 font-bold text-xs uppercase tracking-widest flex items-center gap-2 border-b-2 transition-all ${
+                          activeTab === tab.id ? "border-rose-500 text-rose-600" : "border-transparent text-slate-400 hover:text-slate-600"
                         }`}
                       >
-                        <tab.icon size={16} /> {tab.label}
+                        <tab.icon size={16} className={activeTab === tab.id ? "text-rose-500" : ""} /> {tab.label}
                       </button>
                     ))}
                   </div>
 
                   {activeTab === "performance" && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="glass p-4 rounded-2xl">
-                        <p className="text-xs text-[#9CA3AF] mb-1">Today's Low</p>
-                        <p className="font-bold text-white">₹{price.day_low.toLocaleString("en-IN")}</p>
+                      <div className="bg-white/70 border border-rose-100/50 p-5 rounded-2xl shadow-sm">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Today's Low</p>
+                        <p className="font-black text-slate-800 text-lg">₹{price.day_low.toLocaleString("en-IN")}</p>
                       </div>
-                      <div className="glass p-4 rounded-2xl">
-                        <p className="text-xs text-[#9CA3AF] mb-1">Today's High</p>
-                        <p className="font-bold text-white">₹{price.day_high.toLocaleString("en-IN")}</p>
+                      <div className="bg-white/70 border border-rose-100/50 p-5 rounded-2xl shadow-sm">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Today's High</p>
+                        <p className="font-black text-slate-800 text-lg">₹{price.day_high.toLocaleString("en-IN")}</p>
                       </div>
-                      <div className="glass p-4 rounded-2xl">
-                        <p className="text-xs text-[#9CA3AF] mb-1">Volume</p>
-                        <p className="font-bold text-white">{(price.volume / 1000000).toFixed(2)}M</p>
+                      <div className="bg-white/70 border border-rose-100/50 p-5 rounded-2xl shadow-sm">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Volume</p>
+                        <p className="font-black text-slate-800 text-lg">{(price.volume / 1000000).toFixed(2)}M</p>
                       </div>
-                      <div className="glass p-4 rounded-2xl">
-                        <p className="text-xs text-[#9CA3AF] mb-1">Market Cap</p>
-                        <p className="font-bold text-white">₹{((price.market_cap || 0) / 10000000000).toFixed(2)}Cr</p>
+                      <div className="bg-white/70 border border-rose-100/50 p-5 rounded-2xl shadow-sm">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Market Cap</p>
+                        <p className="font-black text-slate-800 text-lg">₹{((price.market_cap || 0) / 10000000000).toFixed(2)}Cr</p>
                       </div>
                     </div>
                   )}
@@ -224,36 +222,36 @@ const StockDetail = () => {
 
               {/* Right Sidebar: Action Buttons */}
                 <div className="relative">
-                  <BorderGlow borderRadius={24} glowColor="258 90 66" colors={["#6366F1", "#8B5CF6"]} fillOpacity={0.05}>
+                  <BorderGlow borderRadius={24} glowColor="345 100 50" colors={["#FB7185", "#F43F5E"]} fillOpacity={0.07}>
                     <button 
                       onClick={() => setShowPicker(!showPicker)}
                       className="w-full text-left p-6 flex items-center justify-between group"
                     >
                       <div>
-                        <h3 className="font-bold text-white flex items-center gap-2">
-                          <Star size={20} className="text-[#8B5CF6]" /> 
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                          <Star size={20} className="text-rose-500 fill-rose-500" /> 
                           Watchlists
                         </h3>
-                        <p className="text-xs text-[#9CA3AF] mt-1">Manage this stock in your lists</p>
+                        <p className="text-xs text-slate-400 font-medium mt-1">Manage this stock in your lists</p>
                       </div>
-                      <Plus size={20} className={`text-[#8B5CF6] transition-transform ${showPicker ? "rotate-45" : ""}`} />
+                      <Plus size={20} className={`text-rose-500 transition-transform ${showPicker ? "rotate-45" : ""}`} />
                     </button>
                   </BorderGlow>
 
                   {showPicker && (
-                    <div className="absolute top-full left-0 right-0 mt-2 glass-strong rounded-2xl p-2 z-50 border border-[#8B5CF6]/30 shadow-2xl animate-in fade-in slide-in-from-top-2">
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-xl rounded-3xl p-3 z-50 border border-rose-100 shadow-2xl animate-in fade-in slide-in-from-top-3">
                       {watchlists.map(wl => (
                         <button
                           key={wl.id}
                           onClick={() => handleAddToWatchlist(wl.id)}
-                          className="w-full text-left px-4 py-3 rounded-xl hover:bg-[#8B5CF6]/20 text-sm font-semibold text-white transition-colors flex items-center justify-between"
+                          className="w-full text-left px-5 py-4 rounded-2xl hover:bg-rose-50 text-sm font-bold text-slate-700 transition-all flex items-center justify-between border border-transparent hover:border-rose-100"
                         >
                           {wl.name}
-                          <span className="text-[10px] text-[#9CA3AF]">Add symbol</span>
+                          <Plus size={14} className="text-rose-400" />
                         </button>
                       ))}
                       {watchlists.length === 0 && (
-                        <p className="p-4 text-xs text-[#9CA3AF] text-center">No watchlists found.</p>
+                        <p className="p-6 text-xs text-slate-400 font-bold text-center italic">No watchlists found.</p>
                       )}
                     </div>
                   )}

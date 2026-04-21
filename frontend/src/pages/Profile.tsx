@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getCASUploads, uploadCAS } from "@/lib/api";
 import {
   User, Mail, CreditCard, LogOut, FileText, CheckCircle2, XCircle, Clock,
-  Upload, Loader2, Shield, Lock,
+  Upload, Loader2, Shield, Lock, Plus,
 } from "lucide-react";
 
 const Profile = () => {
@@ -92,42 +92,41 @@ const Profile = () => {
     <PageTransition>
       <div className="pt-6 max-w-2xl mx-auto">
         {/* Profile Header */}
-        <div className="text-center mb-8">
-          <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-[#6366F1]/30 to-[#8B5CF6]/30 flex items-center justify-center mx-auto mb-4 ring-2 ring-[#8B5CF6]/30">
-            <span className="text-2xl font-bold text-white">
+        <div className="text-center mb-12">
+          <div className="h-28 w-28 rounded-[2.5rem] bg-gradient-to-br from-rose-50 to-rose-100 flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-rose-500/10 border border-rose-100 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-sm group-hover:opacity-0 transition-opacity" />
+            <span className="text-4xl font-black text-rose-500 relative z-10 tracking-tighter">
               {user?.full_name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2) || "??"}
             </span>
           </div>
-          <GradientText
-            className="text-xl font-bold mb-1"
-            colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-            animationSpeed={8}
-          >
-            {user?.full_name || "User"}
-          </GradientText>
-          <p className="text-xs text-[#9CA3AF]">{user?.email}</p>
+          <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase mb-2">
+            {user?.full_name || "Account Profile"}
+          </h1>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-50 border border-rose-100">
+            <Mail size={12} className="text-rose-400" />
+            <p className="text-[10px] text-rose-500 font-black uppercase tracking-[0.2em]">{user?.email}</p>
+          </div>
         </div>
 
-        {/* Account Details */}
-        <div className="glass-strong rounded-2xl overflow-hidden mb-6">
-          <div className="p-5 border-b border-white/5">
-            <h3 className="text-base font-bold text-white">Account Details</h3>
+        <div className="bg-white/70 backdrop-blur-3xl border border-rose-100/50 rounded-[2.5rem] overflow-hidden mb-6 shadow-2xl shadow-rose-500/5">
+          <div className="p-5 border-b border-rose-50">
+            <h3 className="text-base font-black text-slate-800">Account Details</h3>
           </div>
-          <div className="p-2">
+          <div className="p-3">
             {[
               { icon: User, label: "Full Name", value: user?.full_name || "Not set" },
               { icon: Mail, label: "Email", value: user?.email || "—" },
               { icon: CreditCard, label: "PAN Status", value: user?.has_pan ? "Verified ✓" : "Not set" },
               { icon: Clock, label: "Member Since", value: user?.created_at ? new Date(user.created_at).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" }) : "—" },
             ].map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
-                    <Icon size={14} className="text-[#8B5CF6]" />
+              <div key={label} className="flex items-center justify-between p-4 rounded-2xl hover:bg-rose-50/50 transition-all border border-transparent hover:border-rose-100">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-rose-50 flex items-center justify-center shadow-inner">
+                    <Icon size={16} className="text-rose-500" />
                   </div>
-                  <p className="text-xs text-[#9CA3AF]">{label}</p>
+                  <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">{label}</p>
                 </div>
-                <p className="text-xs text-white font-medium">{value}</p>
+                <p className="text-sm text-slate-700 font-bold">{value}</p>
               </div>
             ))}
           </div>
@@ -137,18 +136,18 @@ const Profile = () => {
         <div className="mb-6">
           <BorderGlow
             borderRadius={24}
-            glowColor="258 90 66"
-            colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-            fillOpacity={0.2}
+            glowColor="345 100 50"
+            colors={["#FB7185", "#F43F5E", "#FFF1F2"]}
+            fillOpacity={0.05}
           >
             <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-xl bg-[#6366F1]/15 flex items-center justify-center">
-                  <Upload size={18} className="text-[#8B5CF6]" />
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-12 w-12 rounded-2xl bg-rose-50 flex items-center justify-center shadow-inner">
+                  <Upload size={20} className="text-rose-500" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">Upload CAS Statement</h3>
-                  <p className="text-[10px] text-[#9CA3AF]">Drop your CDSL/NSDL PDF to import holdings</p>
+                  <h3 className="text-base font-black text-slate-800">Import Holdings</h3>
+                  <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">CDSL/NSDL PDF Import</p>
                 </div>
               </div>
 
@@ -158,12 +157,12 @@ const Profile = () => {
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer ${
+                className={`relative border-2 border-dashed rounded-3xl p-10 text-center transition-all duration-500 cursor-pointer ${
                   dragActive
-                    ? "border-[#8B5CF6] bg-[#8B5CF6]/10"
+                    ? "border-rose-400 bg-rose-50 shadow-inner"
                     : file
-                    ? "border-emerald-400/30 bg-emerald-400/5"
-                    : "border-white/10 hover:border-[#6366F1]/30 hover:bg-white/[0.02]"
+                    ? "border-emerald-400/50 bg-emerald-50"
+                    : "border-rose-100 hover:border-rose-300 hover:bg-rose-50/30"
                 }`}
                 onClick={() => document.getElementById("cas-file-input-profile")?.click()}
               >
@@ -176,22 +175,24 @@ const Profile = () => {
                 />
 
                 {file ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <FileText size={20} className="text-emerald-400" />
-                    <p className="text-xs font-bold text-white">{file.name}</p>
-                    <p className="text-[10px] text-[#9CA3AF]">{(file.size / 1024).toFixed(1)} KB</p>
+                  <div className="flex flex-col items-center gap-3 animate-in fade-in zoom-in-95">
+                    <FileText size={24} className="text-emerald-500" />
+                    <p className="text-sm font-black text-slate-700">{file.name}</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">{(file.size / 1024).toFixed(1)} KB</p>
                     <button
                       onClick={(e) => { e.stopPropagation(); setFile(null); setUploadResult(null); }}
-                      className="text-[10px] text-[#9CA3AF] hover:text-red-400 transition-colors"
+                      className="text-[10px] text-slate-400 hover:text-rose-500 font-black uppercase tracking-[0.2em] transition-colors mt-2"
                     >
-                      Remove
+                      Remove File
                     </button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <Upload size={20} className="text-[#8B5CF6]" />
-                    <p className="text-xs text-white">Drop CAS PDF here</p>
-                    <p className="text-[10px] text-[#9CA3AF]">or click to browse · PDF only</p>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 mb-1">
+                       <Plus size={20} className="stroke-[3]" />
+                    </div>
+                    <p className="text-sm font-black text-slate-700">Drop CAS Statement</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">or browse your files</p>
                   </div>
                 )}
               </div>
@@ -201,17 +202,17 @@ const Profile = () => {
                 <button
                   onClick={handleUpload}
                   disabled={uploading}
-                  className="w-full mt-4 py-2.5 rounded-xl neon-button text-white font-semibold text-xs disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full mt-6 py-5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-black text-[10px] uppercase tracking-[0.3em] transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-rose-200"
                 >
                   {uploading ? (
                     <>
-                      <Loader2 size={14} className="animate-spin" />
-                      Parsing...
+                      <Loader2 size={16} className="animate-spin" />
+                      Parsing Intelligence...
                     </>
                   ) : (
                     <>
-                      <Upload size={14} />
-                      Upload & Parse
+                      <Upload size={16} className="stroke-[3]" />
+                      Process Statement
                     </>
                   )}
                 </button>
@@ -219,35 +220,35 @@ const Profile = () => {
 
               {/* Upload Result */}
               {uploadResult && (
-                <div className={`mt-4 p-3 rounded-xl border text-xs ${
+                <div className={`mt-6 p-4 rounded-2xl border ${
                   uploadResult.status === "parsed"
-                    ? "bg-emerald-400/10 border-emerald-400/20"
-                    : "bg-red-400/10 border-red-400/20"
+                    ? "bg-emerald-50 border-emerald-100"
+                    : "bg-rose-50 border-rose-100"
                 }`}>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     {uploadResult.status === "parsed" ? (
-                      <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
+                      <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
                     ) : (
-                      <XCircle size={14} className="text-red-400 shrink-0" />
+                      <XCircle size={16} className="text-rose-500 shrink-0" />
                     )}
-                    <p className={uploadResult.status === "parsed" ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>
+                    <p className={`text-xs font-black uppercase tracking-tight ${uploadResult.status === "parsed" ? "text-emerald-600" : "text-rose-600"}`}>
                       {uploadResult.status === "parsed"
-                        ? `Parsed ${uploadResult.holdings_count} holdings!`
-                        : uploadResult.error_message || "Upload failed"}
+                        ? `Parsed ${uploadResult.holdings_count} assets successfully!`
+                        : uploadResult.error_message || "Upload Failed"}
                     </p>
                   </div>
                 </div>
               )}
 
               {/* Security badges */}
-              <div className="mt-4 flex gap-3">
-                <div className="flex items-center gap-1.5 text-[10px] text-[#9CA3AF]">
-                  <Shield size={10} className="text-[#8B5CF6]" />
-                  PAN-secured
+              <div className="mt-8 flex gap-4 justify-center">
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                  <Shield size={12} className="text-rose-400" />
+                  PAN Protected
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-[#9CA3AF]">
-                  <Lock size={10} className="text-[#8B5CF6]" />
-                  Encrypted
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                  <Lock size={12} className="text-rose-400" />
+                  TLS Encrypted
                 </div>
               </div>
             </div>
@@ -255,41 +256,41 @@ const Profile = () => {
         </div>
 
         {/* Upload History */}
-        <div className="glass-strong rounded-2xl overflow-hidden mb-6">
-          <div className="p-5 border-b border-white/5">
-            <h3 className="text-base font-bold text-white">CAS Upload History</h3>
-            <p className="text-[10px] text-[#9CA3AF]">{uploads.length} uploads</p>
+        <div className="bg-white/70 backdrop-blur-xl border border-rose-100/50 rounded-3xl overflow-hidden mb-8 shadow-xl shadow-rose-500/5">
+          <div className="p-6 border-b border-rose-50">
+            <h3 className="text-base font-black text-slate-800">Import History</h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{uploads.length} verified logs</p>
           </div>
-          <div className="p-2">
+          <div className="p-3">
             {uploads.length === 0 ? (
-              <p className="text-sm text-[#9CA3AF] text-center py-6">No CAS uploads yet</p>
+              <p className="text-sm text-slate-400 font-bold text-center py-10 italic">No activity detected</p>
             ) : (
               uploads.map((u) => (
-                <div key={u.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
-                      u.status === "parsed" ? "bg-emerald-400/10" : "bg-red-400/10"
+                <div key={u.id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-rose-50/50 transition-all border border-transparent hover:border-rose-100">
+                  <div className="flex items-center gap-4">
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center shadow-inner ${
+                      u.status === "parsed" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
                     }`}>
                       {u.status === "parsed" ? (
-                        <CheckCircle2 size={14} className="text-emerald-400" />
+                        <CheckCircle2 size={16} />
                       ) : (
-                        <XCircle size={14} className="text-red-400" />
+                        <XCircle size={16} />
                       )}
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <FileText size={12} className="text-[#9CA3AF]" />
-                        <p className="text-xs font-medium text-white">{u.filename}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <FileText size={12} className="text-slate-400" />
+                        <p className="text-sm font-bold text-slate-700">{u.filename}</p>
                       </div>
-                      <p className="text-[10px] text-[#9CA3AF]">
-                        {new Date(u.upload_date).toLocaleDateString("en-IN")} · {u.holdings_count} holdings
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                        {new Date(u.upload_date).toLocaleDateString("en-IN")} · {u.holdings_count} assets
                       </p>
                     </div>
                   </div>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full ${
+                  <span className={`text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl ${
                     u.status === "parsed"
-                      ? "bg-emerald-400/10 text-emerald-400"
-                      : "bg-red-400/10 text-red-400"
+                      ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                      : "bg-rose-50 text-rose-600 border border-rose-100"
                   }`}>
                     {u.status}
                   </span>
@@ -302,10 +303,10 @@ const Profile = () => {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full p-3 rounded-xl glass hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 transition-all flex items-center justify-center gap-2 text-[#9CA3AF] hover:text-red-400"
+          className="w-full p-5 rounded-[2rem] bg-white/80 hover:bg-rose-50 border border-rose-100/50 backdrop-blur-xl transition-all flex items-center justify-center gap-3 text-slate-400 hover:text-rose-500 font-black text-[10px] uppercase tracking-[0.4em] shadow-xl shadow-rose-500/5"
         >
-          <LogOut size={16} />
-          <span className="text-sm font-semibold">Sign Out</span>
+          <LogOut size={16} className="stroke-[3]" />
+          <span>Sign Out Securely</span>
         </button>
       </div>
     </PageTransition>

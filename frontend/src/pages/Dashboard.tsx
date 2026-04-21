@@ -4,7 +4,42 @@ import api from "@/lib/api";
 import { type StockPrice, type NewsArticle } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { Search, TrendingUp, TrendingDown, Clock, Newspaper, ArrowRight, Activity, Zap } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Clock, Newspaper, ArrowRight, Activity, Zap, Trash2 } from "lucide-react";
+import BorderGlow from "@/components/BorderGlow";
+
+const C = {
+  textDark: "#1F2937",      // Dark Slate
+  textSoft: "#6B7280",      // Slate 500
+  border: "rgba(251,113,133,0.15)", // Soft Rose
+  cardBg: "rgba(255,255,255,0.7)",
+  gain: "#059669",          // Emerald 600
+  loss: "#E11D48",          // Rose 600
+  gainBg: "rgba(16,185,129,0.08)",
+  lossBg: "rgba(244,63,94,0.08)",
+  rose: "#FDA4AF",
+  plum: "#C4B5FD",
+  lavSoft: "rgba(167,139,250,0.1)",
+};
+
+const f = (styles: any) => ({
+  fontFamily: "'Outfit', sans-serif",
+  ...styles,
+});
+
+const card = (styles: any) => ({
+  background: C.cardBg,
+  border: `1px solid ${C.border}`,
+  borderRadius: "24px",
+  backdropFilter: "blur(16px)",
+  ...styles,
+});
+
+const themeConfig: any = {
+  "High Growth": { icon: "🌱", bg: "rgba(244,63,94,0.08)", color: "#F43F5E" },
+  "Dividends": { icon: "🌸", bg: "rgba(20,184,166,0.08)", color: "#14B8A6" },
+  "Tech Giants": { icon: "✨", bg: "rgba(139,92,246,0.08)", color: "#8B5CF6" },
+  "EV Revolution": { icon: "⚡", bg: "rgba(14,165,233,0.08)", color: "#0EA5E9" },
+};
 
 const SearchBar = ({ navigate }: { navigate: any }) => {
   const [val, setVal] = useState("");
@@ -20,9 +55,9 @@ const SearchBar = ({ navigate }: { navigate: any }) => {
   }, [val]);
 
   return (
-    <div style={{ position: "relative", maxWidth: "560px", margin: "0 auto 28px", zIndex: 50 }}>
+    <div style={{ position: "relative", maxWidth: "560px", margin: "0 auto 32px", zIndex: 50 }}>
       <div style={{ position: "relative" }}>
-        <Search size={18} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: C.textSoft }} />
+        <Search size={18} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94A3B8" }} />
         <input
           type="text" value={val}
           placeholder="Search stocks — Reliance, HDFC, Infosys..."
@@ -31,28 +66,33 @@ const SearchBar = ({ navigate }: { navigate: any }) => {
           onBlur={() => setTimeout(() => setOpen(false), 200)}
           style={{
             width: "100%", paddingLeft: "46px", paddingRight: "16px",
-            paddingTop: "14px", paddingBottom: "14px", borderRadius: "18px",
-            background: "rgba(255,255,255,0.88)", border: `1.5px solid ${C.border}`,
-            color: C.textDark, fontSize: "0.9rem", fontFamily: "'Outfit', sans-serif",
+            paddingTop: "15px", paddingBottom: "15px", borderRadius: "20px",
+            background: "rgba(255,255,255,0.85)", border: `1.5px solid rgba(251,113,133,0.25)`,
+            color: "#1F2937", fontSize: "0.9rem", fontFamily: "'Outfit', sans-serif",
             outline: "none", boxSizing: "border-box",
-            boxShadow: "0 4px 20px rgba(180,120,180,0.1)",
+            boxShadow: "0 10px 30px rgba(244,63,94,0.06)",
           }}
         />
       </div>
       {open && (
-        <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, ...card({ borderRadius: "16px", overflow: "hidden" }), boxShadow: "0 12px 40px rgba(180,120,180,0.18)" }}>
+        <div style={{
+          position: "absolute", top: "calc(100% + 10px)", left: 0, right: 0,
+          background: "rgba(255,255,255,0.95)", backdropFilter: "blur(20px)",
+          borderRadius: "20px", border: "1px solid rgba(251,113,133,0.15)",
+          boxShadow: "0 20px 60px rgba(180,120,180,0.15)", overflow: "hidden"
+        }}>
           {results.map((r) => (
             <button
               key={r.symbol}
               onClick={() => navigate(`/stock/${r.symbol}`)}
-              className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors text-left border-b border-white/5 last:border-none"
+              className="w-full p-4 flex items-center justify-between hover:bg-rose-50/50 transition-colors text-left border-b border-rose-50 last:border-none"
             >
               <div>
-                <p className="text-sm font-bold text-white">{r.symbol}</p>
-                <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{r.name}</p>
+                <p className="text-sm font-bold text-slate-800">{r.symbol}</p>
+                <p className="text-[10px] text-slate-500 truncate max-w-[200px]">{r.name}</p>
               </div>
               <div className="text-right">
-                <span className="text-[10px] uppercase font-bold text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded">{r.exch}</span>
+                <span className="text-[10px] uppercase font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-full">{r.exch}</span>
               </div>
             </button>
           ))}
@@ -112,15 +152,15 @@ const MoverCard = ({ data, navigate }: { data: StockPrice; navigate: any }) => {
 };
 
 // ── Watchlist Section ────────────────────────────────────────────────────────
-const WatchlistSection = ({ watchlists, activeListId, onSwitch, onCreate, items, onRemoveItem, navigate }: any) => (
+const WatchlistSection = ({ watchlists, activeListId, onSwitch, onCreate, onDeleteList, items, onRemoveItem, navigate }: any) => (
   <div style={{ marginBottom: "36px" }}>
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
       <h2 style={f({ fontSize: "1rem", fontWeight: 700, color: C.textDark, display: "flex", alignItems: "center", gap: "8px" })}>
-        <Clock size={17} color={C.rose} /> My Watchlists
+        <Clock size={17} color="#F43F5E" /> My Watchlists
       </h2>
       <button onClick={onCreate} style={{
-        ...f({ fontSize: "0.78rem", fontWeight: 700, color: C.plum }),
-        background: C.lavSoft, border: `1px solid rgba(196,168,255,0.4)`,
+        ...f({ fontSize: "0.78rem", fontWeight: 700, color: "#E11D48" }),
+        background: "rgba(251,113,133,0.1)", border: `1px solid rgba(251,113,133,0.2)`,
         borderRadius: "12px", padding: "7px 14px", cursor: "pointer",
         display: "flex", alignItems: "center", gap: "5px",
       }}>
@@ -130,14 +170,14 @@ const WatchlistSection = ({ watchlists, activeListId, onSwitch, onCreate, items,
 
       {/* Watchlist Tabs */}
       <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
-        {watchlists.map(list => (
+        {watchlists.map((list: any) => (
           <div key={list.id} className="flex items-center group/tab">
             <button
               onClick={() => onSwitch(list.id)}
               className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap border ${
                 activeListId === list.id 
-                  ? "bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-[0_0_20px_rgba(139,92,246,0.3)]" 
-                  : "bg-white/5 text-slate-400 border-white/5 hover:bg-white/10"
+                  ? "bg-gradient-to-r from-rose-400 to-rose-500 text-white border-rose-400 shadow-[0_4px_16px_rgba(244,63,94,0.3)]" 
+                  : "bg-white/40 text-slate-500 border-rose-100 hover:bg-rose-50/50"
               }`}
             >
               {list.name}
@@ -148,7 +188,7 @@ const WatchlistSection = ({ watchlists, activeListId, onSwitch, onCreate, items,
                 className="ml-[-10px] z-10 opacity-0 group-hover/tab:opacity-100 transition-opacity bg-red-500 text-white rounded-full p-1 shadow-lg hover:scale-110 active:scale-95 translate-x-2"
                 title="Delete watchlist"
               >
-                <TrendingDown size={12} className="rotate-45" /> 
+                <Trash2 size={12} /> 
               </button>
             )}
           </div>
@@ -163,7 +203,7 @@ const WatchlistSection = ({ watchlists, activeListId, onSwitch, onCreate, items,
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {items.map(item => {
+          {items.map((item: any) => {
             const isPositive = item.change >= 0;
             return (
               <div
@@ -171,17 +211,17 @@ const WatchlistSection = ({ watchlists, activeListId, onSwitch, onCreate, items,
                 onClick={() => navigate(`/stock/${item.symbol}`)}
                 className="glass rounded-xl p-4 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all relative group overflow-hidden"
               >
-                <div className={`absolute top-0 left-0 w-1 h-full ${isPositive ? "bg-emerald-500/50" : "bg-red-500/50"}`} />
+                <div className={`absolute top-0 left-0 w-1 h-full ${isPositive ? "bg-emerald-400" : "bg-rose-400"}`} />
                 <button
                   onClick={(e) => { e.stopPropagation(); onRemoveItem(item.symbol); }}
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-[#9CA3AF] hover:text-white transition-opacity bg-black/40 rounded-full"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition-opacity bg-white/60 rounded-full"
                 >
                   ×
                 </button>
-                <h3 className="font-bold text-white text-sm truncate pr-4">{item.symbol.replace(".NS", "")}</h3>
-                <p className="text-[10px] text-[#9CA3AF] truncate mb-3">{item.name}</p>
-                <p className="text-sm font-mono font-bold text-white">₹{item.current_price.toLocaleString("en-IN")}</p>
-                <p className={`text-[10px] font-bold mt-1 inline-block px-1.5 py-0.5 rounded ${isPositive ? "text-emerald-400 bg-emerald-400/5" : "text-red-400 bg-red-400/5"}`}>
+                <h3 className="font-bold text-slate-800 text-sm truncate pr-4">{item.symbol.replace(".NS", "")}</h3>
+                <p className="text-[10px] text-slate-400 truncate mb-3">{item.name}</p>
+                <p className="text-sm font-mono font-bold text-slate-700">₹{item.current_price.toLocaleString("en-IN")}</p>
+                <p className={`text-[10px] font-bold mt-1 inline-block px-1.5 py-0.5 rounded ${isPositive ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"}`}>
                   {isPositive ? "+" : ""}{item.change_percent.toFixed(2)}%
                 </p>
               </div>
@@ -191,30 +231,7 @@ const WatchlistSection = ({ watchlists, activeListId, onSwitch, onCreate, items,
       )}
     </div>
   );
-};
 
-const MoverCard = ({ data, label, navigate }: { data: StockPrice, label: string, navigate: any }) => {
-  const isPositive = data.change >= 0;
-  return (
-    <div onClick={() => navigate(`/stock/${data.symbol}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer group">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${isPositive ? "bg-emerald-400/10" : "bg-red-400/10"}`}>
-          {isPositive ? <TrendingUp size={18} className="text-emerald-400" /> : <TrendingDown size={18} className="text-red-400" />}
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-white truncate group-hover:text-[#8B5CF6] transition-colors">{data.name?.split(' ')[0] || data.symbol.replace(".NS", "")}</p>
-          <p className="text-[10px] text-[#9CA3AF] truncate">{data.symbol.replace(".NS", "")}</p>
-        </div>
-      </div>
-      <div className="text-right shrink-0 ml-2">
-        <p className="text-sm font-bold text-white">₹{data.current_price.toLocaleString("en-IN")}</p>
-        <p className={`text-xs font-medium ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
-          {isPositive ? "+" : ""}{data.change_percent.toFixed(2)}%
-        </p>
-      </div>
-    </div>
-  );
-};
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -264,6 +281,18 @@ const Dashboard = () => {
     try { await api.removeFromWatchlist(symbol, activeListId); setWatchlistItems(w => w.filter(x => x.symbol !== symbol)); } catch {}
   };
 
+  const handleDeleteWatchlist = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this watchlist?")) return;
+    try {
+      await api.deleteWatchlist(id);
+      setWatchlists(prev => {
+        const next = prev.filter(w => w.id !== id);
+        if (activeListId === id) setActiveListId(next.length > 0 ? next[0].id : null);
+        return next;
+      });
+    } catch { alert("Failed to delete watchlist"); }
+  };
+
   const indices = snapshot.filter(s => s.symbol.startsWith("^")).slice(0, 3);
   const firstName = user?.full_name?.split(" ")[0] || "there";
 
@@ -281,12 +310,10 @@ const Dashboard = () => {
 
         <SearchBar 
           navigate={navigate}
-          activeListId={activeListId}
-          fetchWatchlistItems={fetchWatchlistItems}
         />
 
         {/* Indices */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "14px", marginBottom: "32px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "16px", marginBottom: "36px" }}>
           {indices.map(idx => (
             <SnapshotCard key={idx.symbol}
               title={idx.symbol === "^NSEI" ? "NIFTY 50" : idx.symbol === "^BSESN" ? "SENSEX" : "BANK NIFTY"}
@@ -298,6 +325,7 @@ const Dashboard = () => {
         <WatchlistSection
           watchlists={watchlists} activeListId={activeListId}
           onSwitch={setActiveListId} onCreate={handleCreateWatchlist}
+          onDeleteList={handleDeleteWatchlist}
           items={watchlistItems} onRemoveItem={removeFromWatchlist} navigate={navigate}
         />
 
@@ -306,17 +334,17 @@ const Dashboard = () => {
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
             {/* Market movers */}
-            <div style={card({ padding: "24px" })}>
+            <div style={card({ padding: "24px", boxShadow: "0 10px 40px rgba(244,63,94,0.05)" })}>
               <h2 style={f({ fontWeight: 700, fontSize: "1rem", color: C.textDark, display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" })}>
-                <Activity size={18} color={C.rose} /> Market in Focus
+                <Activity size={18} color="#E11D48" /> Market in Focus
               </h2>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
-                  <p style={f({ fontSize: "0.7rem", fontWeight: 700, color: C.gain, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "8px" })}>Top Gainers</p>
+                  <p style={f({ fontSize: "0.7rem", fontWeight: 700, color: C.gain, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "12px" })}>Top Gainers</p>
                   {movers?.gainers.map(m => <MoverCard key={m.symbol} data={m} navigate={navigate} />)}
                 </div>
                 <div>
-                  <p style={f({ fontSize: "0.7rem", fontWeight: 700, color: C.loss, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "8px" })}>Top Losers</p>
+                  <p style={f({ fontSize: "0.7rem", fontWeight: 700, color: C.loss, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "12px" })}>Top Losers</p>
                   {movers?.losers.map(m => <MoverCard key={m.symbol} data={m} navigate={navigate} />)}
                 </div>
               </div>
@@ -334,12 +362,18 @@ const Dashboard = () => {
                   return (
                     <div key={theme} onClick={() => fetchTheme(theme)} style={{
                       ...card({ padding: "16px 10px", textAlign: "center", cursor: "pointer", transition: "all 0.2s" }),
-                      background: isActive ? "linear-gradient(135deg, rgba(249,168,192,0.2), rgba(196,168,255,0.2))" : C.cardBg,
-                      border: isActive ? "1.5px solid rgba(196,168,255,0.5)" : `1.5px solid ${C.border}`,
+                      background: isActive ? "linear-gradient(135deg, rgba(253,164,175,0.15), rgba(196,181,253,0.15))" : C.cardBg,
+                      border: isActive ? "1.5px solid rgba(251,113,133,0.4)" : `1.5px solid ${C.border}`,
                     }}
-                      onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-3px)")}
-                      onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0)")}>
-                      <div style={{ width: "44px", height: "44px", borderRadius: "14px", margin: "0 auto 10px", background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", color: cfg.color }}>{cfg.icon}</div>
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = "translateY(-4px)";
+                        e.currentTarget.style.boxShadow = "0 8px 32px rgba(244,63,94,0.08)";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}>
+                      <div style={{ width: "44px", height: "44px", borderRadius: "14px", margin: "0 auto 10px", background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", color: cfg.color, fontSize: "1.2rem" }}>{cfg.icon}</div>
                       <p style={f({ fontSize: "0.78rem", fontWeight: 700, color: C.textDark })}>{theme}</p>
                     </div>
                   );
@@ -361,17 +395,19 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-6">
-            <BorderGlow borderRadius={24} glowColor="258 90 66" colors={["#6366F1", "#8B5CF6"]} fillOpacity={0.1}>
+            <BorderGlow borderRadius={24} glowColor="350 89 60" colors={["#FDA4AF", "#C4B5FD"]} fillOpacity={0.04}>
               <div className="p-6">
-                <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2"><Newspaper size={18} className="text-[#8B5CF6]" /> Latest Market News</h2>
+                <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                    <Newspaper size={18} className="text-rose-500" /> Latest News
+                </h2>
                 <div className="space-y-4">
                   {news.map((item, idx) => (
-                    <a key={idx} href={item.url} target="_blank" rel="noreferrer" className="block p-3 rounded-xl hover:bg-white/5 transition-colors group">
-                      <p className="text-[10px] text-[#8B5CF6] font-bold mb-1 uppercase tracking-wider">{item.source.name}</p>
-                      <h4 className="text-sm font-semibold text-white group-hover:text-[#8B5CF6] transition-colors leading-snug line-clamp-2">{item.title}</h4>
+                    <a key={idx} href={item.url} target="_blank" rel="noreferrer" className="block p-3 rounded-xl hover:bg-rose-50/50 transition-colors group border border-transparent hover:border-rose-100">
+                      <p className="text-[10px] text-rose-500 font-bold mb-1 uppercase tracking-wider">{item.source.name}</p>
+                      <h4 className="text-sm font-semibold text-slate-700 group-hover:text-rose-600 transition-colors leading-snug line-clamp-2">{item.title}</h4>
                     </a>
                   ))}
-                    {news.length === 0 && <p className="text-sm text-[#9CA3AF]">Loading news...</p>}
+                    {news.length === 0 && <p className="text-sm text-slate-400">Fetching latest stories...</p>}
                   </div>
                 </div>
               </BorderGlow>

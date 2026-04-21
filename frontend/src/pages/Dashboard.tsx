@@ -4,35 +4,8 @@ import api from "@/lib/api";
 import { type StockPrice, type NewsArticle } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { Search, TrendingUp, TrendingDown, Clock, Newspaper, Activity, Zap, Leaf, Cpu, Landmark, Car } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Clock, Newspaper, ArrowRight, Activity, Zap } from "lucide-react";
 
-// ── Design tokens ────────────────────────────────────────────────────────────
-const C = {
-  rose: "#D4668A", roseSoft: "#F9A8C0",
-  plum: "#9B6DD1", lavender: "#C4A8FF", lavSoft: "#F5EEFE",
-  textDark: "#3D2054", textSoft: "#A07AAE",
-  border: "rgba(212,102,138,0.14)", cardBg: "rgba(255,255,255,0.72)",
-  gain: "#2DBD8F", gainBg: "rgba(45,189,143,0.1)",
-  loss: "#E05A8A", lossBg: "rgba(224,90,138,0.1)",
-};
-const card = (extra?: React.CSSProperties): React.CSSProperties => ({
-  background: C.cardBg, backdropFilter: "blur(16px)",
-  borderRadius: "20px", border: `1.5px solid ${C.border}`,
-  boxShadow: "0 4px 24px rgba(180,120,180,0.08)", ...extra,
-});
-const f = (extra?: React.CSSProperties): React.CSSProperties => ({
-  fontFamily: "'Outfit', sans-serif", ...extra,
-});
-
-// ── Theme config ─────────────────────────────────────────────────────────────
-const themeConfig: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
-  Technology:    { icon: <Cpu size={22} />,      color: "#9B6DD1", bg: "rgba(196,168,255,0.15)" },
-  EVs:           { icon: <Car size={22} />,      color: "#D4668A", bg: "rgba(249,168,192,0.15)" },
-  Banking:       { icon: <Landmark size={22} />, color: "#2DBD8F", bg: "rgba(45,189,143,0.12)"  },
-  "Green Energy":{ icon: <Leaf size={22} />,     color: "#5BAD8F", bg: "rgba(91,173,143,0.12)"  },
-};
-
-// ── SearchBar ────────────────────────────────────────────────────────────────
 const SearchBar = ({ navigate }: { navigate: any }) => {
   const [val, setVal] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -69,16 +42,18 @@ const SearchBar = ({ navigate }: { navigate: any }) => {
       {open && (
         <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, ...card({ borderRadius: "16px", overflow: "hidden" }), boxShadow: "0 12px 40px rgba(180,120,180,0.18)" }}>
           {results.map((r) => (
-            <button key={r.symbol} onClick={() => navigate(`/stock/${r.symbol}`)} style={{
-              width: "100%", padding: "12px 16px", display: "flex", alignItems: "center",
-              justifyContent: "space-between", background: "none", border: "none",
-              borderBottom: `1px solid ${C.border}`, cursor: "pointer", textAlign: "left",
-            }}>
+            <button
+              key={r.symbol}
+              onClick={() => navigate(`/stock/${r.symbol}`)}
+              className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors text-left border-b border-white/5 last:border-none"
+            >
               <div>
-                <p style={f({ fontWeight: 700, fontSize: "0.875rem", color: C.textDark })}>{r.symbol}</p>
-                <p style={f({ fontSize: "0.72rem", color: C.textSoft })}>{r.name}</p>
+                <p className="text-sm font-bold text-white">{r.symbol}</p>
+                <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{r.name}</p>
               </div>
-              <span style={{ fontSize: "0.65rem", fontWeight: 700, color: C.plum, background: C.lavSoft, padding: "3px 8px", borderRadius: "8px", fontFamily: "'Outfit', sans-serif" }}>{r.exch}</span>
+              <div className="text-right">
+                <span className="text-[10px] uppercase font-bold text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded">{r.exch}</span>
+              </div>
             </button>
           ))}
         </div>
@@ -153,61 +128,94 @@ const WatchlistSection = ({ watchlists, activeListId, onSwitch, onCreate, items,
       </button>
     </div>
 
-    <div style={{ display: "flex", gap: "8px", marginBottom: "18px", overflowX: "auto", paddingBottom: "4px" }}>
-      {watchlists.map((list: any) => {
-        const active = activeListId === list.id;
-        return (
-          <button key={list.id} onClick={() => onSwitch(list.id)} style={{
-            ...f({ fontSize: "0.82rem", fontWeight: 700 }),
-            padding: "8px 18px", borderRadius: "14px", whiteSpace: "nowrap",
-            border: "none", cursor: "pointer", transition: "all 0.2s",
-            background: active ? "linear-gradient(135deg, #F9A8C0, #C4A8FF)" : "rgba(255,255,255,0.7)",
-            color: active ? "white" : C.textSoft,
-            boxShadow: active ? "0 4px 16px rgba(196,168,255,0.35)" : "none",
-          }}>{list.name}</button>
-        );
-      })}
+      {/* Watchlist Tabs */}
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
+        {watchlists.map(list => (
+          <div key={list.id} className="flex items-center group/tab">
+            <button
+              onClick={() => onSwitch(list.id)}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap border ${
+                activeListId === list.id 
+                  ? "bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-[0_0_20px_rgba(139,92,246,0.3)]" 
+                  : "bg-white/5 text-slate-400 border-white/5 hover:bg-white/10"
+              }`}
+            >
+              {list.name}
+            </button>
+            {watchlists.length > 1 && activeListId === list.id && (
+              <button 
+                onClick={() => onDeleteList(list.id)}
+                className="ml-[-10px] z-10 opacity-0 group-hover/tab:opacity-100 transition-opacity bg-red-500 text-white rounded-full p-1 shadow-lg hover:scale-110 active:scale-95 translate-x-2"
+                title="Delete watchlist"
+              >
+                <TrendingDown size={12} className="rotate-45" /> 
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Items Grid */}
+      {items.length === 0 ? (
+        <div className="glass rounded-2xl p-10 text-center border-dashed border-white/10">
+          <p className="text-[#9CA3AF] text-sm mb-4">This watchlist is empty. Add some stocks to track them!</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold font-mono">Tip: Use the search bar above to find and add stocks</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {items.map(item => {
+            const isPositive = item.change >= 0;
+            return (
+              <div
+                key={item.symbol}
+                onClick={() => navigate(`/stock/${item.symbol}`)}
+                className="glass rounded-xl p-4 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all relative group overflow-hidden"
+              >
+                <div className={`absolute top-0 left-0 w-1 h-full ${isPositive ? "bg-emerald-500/50" : "bg-red-500/50"}`} />
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRemoveItem(item.symbol); }}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-[#9CA3AF] hover:text-white transition-opacity bg-black/40 rounded-full"
+                >
+                  ×
+                </button>
+                <h3 className="font-bold text-white text-sm truncate pr-4">{item.symbol.replace(".NS", "")}</h3>
+                <p className="text-[10px] text-[#9CA3AF] truncate mb-3">{item.name}</p>
+                <p className="text-sm font-mono font-bold text-white">₹{item.current_price.toLocaleString("en-IN")}</p>
+                <p className={`text-[10px] font-bold mt-1 inline-block px-1.5 py-0.5 rounded ${isPositive ? "text-emerald-400 bg-emerald-400/5" : "text-red-400 bg-red-400/5"}`}>
+                  {isPositive ? "+" : ""}{item.change_percent.toFixed(2)}%
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
+  );
+};
 
-    {items.length === 0 ? (
-      <div style={card({ padding: "36px", textAlign: "center" })}>
-        <p style={f({ color: C.textSoft, fontSize: "0.9rem", marginBottom: "6px" })}>Your watchlist is empty 🌸</p>
-        <p style={f({ color: C.lavender, fontSize: "0.75rem" })}>Use the search bar above to find stocks</p>
+const MoverCard = ({ data, label, navigate }: { data: StockPrice, label: string, navigate: any }) => {
+  const isPositive = data.change >= 0;
+  return (
+    <div onClick={() => navigate(`/stock/${data.symbol}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer group">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${isPositive ? "bg-emerald-400/10" : "bg-red-400/10"}`}>
+          {isPositive ? <TrendingUp size={18} className="text-emerald-400" /> : <TrendingDown size={18} className="text-red-400" />}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-white truncate group-hover:text-[#8B5CF6] transition-colors">{data.name?.split(' ')[0] || data.symbol.replace(".NS", "")}</p>
+          <p className="text-[10px] text-[#9CA3AF] truncate">{data.symbol.replace(".NS", "")}</p>
+        </div>
       </div>
-    ) : (
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(155px, 1fr))", gap: "12px" }}>
-        {items.map((item: StockPrice) => {
-          const up = item.change >= 0;
-          return (
-            <div key={item.symbol} onClick={() => navigate(`/stock/${item.symbol}`)} style={card({ padding: "15px", cursor: "pointer", position: "relative", overflow: "hidden", transition: "transform 0.2s" })}
-              onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-3px)")}
-              onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0)")}>
-              <div style={{ position: "absolute", top: 0, left: 0, width: "3px", height: "100%", background: up ? C.gain : C.loss }} />
-              <button onClick={(e) => { e.stopPropagation(); onRemoveItem(item.symbol); }} style={{
-                position: "absolute", top: "8px", right: "8px", background: "rgba(255,255,255,0.8)",
-                border: "none", borderRadius: "50%", width: "20px", height: "20px",
-                cursor: "pointer", color: C.textSoft, fontSize: "13px",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>×</button>
-              <h3 style={f({ fontWeight: 700, fontSize: "0.85rem", color: C.textDark, marginBottom: "2px" })}>
-                {item.symbol.replace(".NS", "")}
-              </h3>
-              <p style={f({ fontSize: "0.68rem", color: C.textSoft, marginBottom: "10px" })}>{item.name}</p>
-              <p style={f({ fontWeight: 700, fontSize: "0.9rem", color: C.textDark })}>₹{item.current_price.toLocaleString("en-IN")}</p>
-              <span style={{
-                display: "inline-block", marginTop: "4px", padding: "2px 8px", borderRadius: "8px",
-                ...f({ fontSize: "0.68rem", fontWeight: 700 }),
-                background: up ? C.gainBg : C.lossBg, color: up ? C.gain : C.loss,
-              }}>{up ? "+" : ""}{item.change_percent.toFixed(2)}%</span>
-            </div>
-          );
-        })}
+      <div className="text-right shrink-0 ml-2">
+        <p className="text-sm font-bold text-white">₹{data.current_price.toLocaleString("en-IN")}</p>
+        <p className={`text-xs font-medium ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
+          {isPositive ? "+" : ""}{data.change_percent.toFixed(2)}%
+        </p>
       </div>
-    )}
-  </div>
-);
+    </div>
+  );
+};
 
-// ── Dashboard ────────────────────────────────────────────────────────────────
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -271,7 +279,11 @@ const Dashboard = () => {
           <p style={f({ color: C.textSoft, fontSize: "0.9rem" })}>Here's what the market looks like today</p>
         </div>
 
-        <SearchBar navigate={navigate} />
+        <SearchBar 
+          navigate={navigate}
+          activeListId={activeListId}
+          fetchWatchlistItems={fetchWatchlistItems}
+        />
 
         {/* Indices */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "14px", marginBottom: "32px" }}>
@@ -348,24 +360,21 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* News panel */}
-          <div style={card({ padding: "22px" })}>
-            <h2 style={f({ fontWeight: 700, fontSize: "1rem", color: C.textDark, display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" })}>
-              <Newspaper size={17} color={C.rose} /> Market News
-            </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-              {news.slice(0, 8).map((item, idx) => (
-                <a key={idx} href={item.url} target="_blank" rel="noreferrer" style={{ display: "block", padding: "11px 10px", borderRadius: "12px", textDecoration: "none", transition: "background 0.2s" }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.65)")}
-                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <p style={f({ fontSize: "0.65rem", fontWeight: 700, color: C.plum, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "3px" })}>{item.source.name}</p>
-                  <h4 style={{ ...f({ fontSize: "0.82rem", fontWeight: 600, color: C.textDark, lineHeight: "1.4" }), display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                    {item.title}
-                  </h4>
-                </a>
-              ))}
-              {news.length === 0 && <p style={f({ color: C.textSoft, fontSize: "0.875rem" })}>Loading news...</p>}
-            </div>
+          <div className="space-y-6">
+            <BorderGlow borderRadius={24} glowColor="258 90 66" colors={["#6366F1", "#8B5CF6"]} fillOpacity={0.1}>
+              <div className="p-6">
+                <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2"><Newspaper size={18} className="text-[#8B5CF6]" /> Latest Market News</h2>
+                <div className="space-y-4">
+                  {news.map((item, idx) => (
+                    <a key={idx} href={item.url} target="_blank" rel="noreferrer" className="block p-3 rounded-xl hover:bg-white/5 transition-colors group">
+                      <p className="text-[10px] text-[#8B5CF6] font-bold mb-1 uppercase tracking-wider">{item.source.name}</p>
+                      <h4 className="text-sm font-semibold text-white group-hover:text-[#8B5CF6] transition-colors leading-snug line-clamp-2">{item.title}</h4>
+                    </a>
+                  ))}
+                    {news.length === 0 && <p className="text-sm text-[#9CA3AF]">Loading news...</p>}
+                  </div>
+                </div>
+              </BorderGlow>
           </div>
         </div>
       </div>

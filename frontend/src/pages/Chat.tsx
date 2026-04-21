@@ -1,46 +1,57 @@
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { 
-  History, 
-  Send, 
-  Bot, 
-  User,
-  Sparkles,
-  TrendingUp,
-  AlertCircle
-} from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import React, { useState, useEffect, useRef } from 'react';
+import { Card } from "@/components/ui/card";
+import { History, Send, Bot, User, Sparkles } from 'lucide-react';
+import api from "@/lib/api";
 
 const Chat = () => {
   const [input, setInput] = useState("");
-  const queryClient = useQueryClient();
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { data: history = [], isLoading } = useQuery({
-    queryKey: ['chat-history'],
-    queryFn: async () => {
-      const res = await api.get('/chat/history');
-      return res.data.messages;
-    }
-  });
+  // Load chat history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const res = await api.getChatHistory();
+        setHistory(res.messages || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setFetching(false);
+      }
+    };
+    loadHistory();
+  }, []);
 
-  const chatMutation = useMutation({
-    mutationFn: async (message: string) => {
-      const res = await api.post('/chat', { message });
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chat-history'] });
-    }
-  });
+  // Auto scroll to bottom
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history, loading]);
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || chatMutation.isPending) return;
-    
+    if (!input.trim() || loading) return;
+
+    const userMessage = input.trim();
     setInput("");
-    chatMutation.mutate(input);
+
+    // Optimistically add user message to UI
+    const tempUserMsg = { id: Date.now(), role: "user", content: userMessage, timestamp: new Date().toISOString() };
+    setHistory(prev => [...prev, tempUserMsg]);
+    setLoading(true);
+
+    try {
+      const res = await api.sendChatMessage(userMessage);
+      const aiMsg = { id: Date.now() + 1, role: "assistant", content: res.reply, timestamp: new Date().toISOString() };
+      setHistory(prev => [...prev, aiMsg]);
+    } catch (e) {
+      const errMsg = { id: Date.now() + 1, role: "assistant", content: "Sorry, I couldn't connect. Please try again.", timestamp: new Date().toISOString() };
+      setHistory(prev => [...prev, errMsg]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,7 +70,7 @@ const Chat = () => {
 
       <Card className="flex-1 flex flex-col bg-slate-900/50 border-slate-800 backdrop-blur-xl overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {isLoading ? (
+          {fetching ? (
             <div className="flex justify-center items-center h-full">
               <Sparkles className="animate-spin text-indigo-400" />
             </div>
@@ -69,7 +80,7 @@ const Chat = () => {
               <p>Ask me anything about your portfolio or the markets.</p>
               <div className="grid grid-cols-2 gap-2 max-w-md">
                 {["Stress test my portfolio", "What's my best performer?", "Market outlook today", "Explain my sector risk"].map(suggestion => (
-                  <button 
+                  <button
                     key={suggestion}
                     onClick={() => setInput(suggestion)}
                     className="text-xs p-2 bg-slate-800/50 rounded-lg hover:bg-slate-700 transition"
@@ -87,11 +98,11 @@ const Chat = () => {
                     {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                   </div>
                   <div className={`p-4 rounded-2xl ${
-                    msg.role === 'user' 
-                      ? 'bg-indigo-600/20 border border-indigo-500/30' 
+                    msg.role === 'user'
+                      ? 'bg-indigo-600/20 border border-indigo-500/30'
                       : 'bg-slate-800/50 border border-slate-700/50'
                   }`}>
-                    <p className="text-slate-200 text-sm leading-relaxed">{msg.content}</p>
+                    <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                     <span className="text-[10px] text-slate-500 mt-2 block">
                       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
@@ -100,7 +111,8 @@ const Chat = () => {
               </div>
             ))
           )}
-          {chatMutation.isPending && (
+
+          {loading && (
             <div className="flex justify-start">
               <div className="flex max-w-[80%] space-x-3">
                 <div className="p-2 rounded-full bg-slate-800 h-fit">
@@ -116,6 +128,7 @@ const Chat = () => {
               </div>
             </div>
           )}
+          <div ref={bottomRef} />
         </div>
 
         <form onSubmit={handleSend} className="p-4 border-t border-slate-800 bg-slate-900/80">
@@ -123,12 +136,12 @@ const Chat = () => {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1 bg-slate-800 border-slate-700 text-white rounded-xl px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Ask about your portfolio, markets, stocks..."
+              className="flex-1 bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button
               type="submit"
-              disabled={chatMutation.isPending}
+              disabled={loading}
               className="bg-indigo-600 hover:bg-indigo-500 p-3 rounded-xl transition disabled:opacity-50"
             >
               <Send size={20} />

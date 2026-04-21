@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import logging                                       
+
+logging.basicConfig(level=logging.INFO) 
 
 from app.core.config import settings
 from app.core.database import engine, Base

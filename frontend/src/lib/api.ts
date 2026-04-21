@@ -66,7 +66,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   return res.json();
 }
 
-// ─── AUTH ──────────────────────────────────────────────────────────────────────
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
 
 export async function register(data: {
   email: string;
@@ -230,7 +230,7 @@ export async function explainAsset(data: {
   }>("/explain", { method: "POST", body: data });
 }
 
-// ─── NEW: MARKET, NEWS & WATCHLIST ─────────────────────────────────────────
+// ─── MARKET, NEWS & WATCHLIST ─────────────────────────────────────────────────
 
 export async function getMarketSnapshot() {
   return request<StockPrice[]>("/market/snapshot");
@@ -280,10 +280,10 @@ export async function addToWatchlist(symbol: string, watchlistId?: string) {
 }
 
 export async function removeFromWatchlist(symbol: string, watchlistId?: string) {
-  const endpoint = watchlistId ? `/watchlists/${watchlistId}/items/${symbol}` : `/watchlist/${symbol}`;
-  return request<{ message: string; symbol: string }>(endpoint, {
-    method: "DELETE",
-  });
+  const endpoint = watchlistId
+    ? `/watchlists/${watchlistId}/items/${symbol}`
+    : `/watchlist/${symbol}`;
+  return request<{ message: string; symbol: string }>(endpoint, { method: "DELETE" });
 }
 
 export async function searchStocks(query: string) {
@@ -303,6 +303,17 @@ export async function sendChatMessage(message: string) {
     method: "POST",
     body: { message },
   });
+}
+
+export async function getChatHistory() {
+  return request<{
+    messages: Array<{
+      id: string;
+      role: string;
+      content: string;
+      timestamp: string;
+    }>;
+  }>("/chat/history");
 }
 
 // ─── EXPORTS ──────────────────────────────────────────────────────────────────
@@ -329,10 +340,10 @@ export const api = {
   deleteWatchlist,
   addToWatchlist,
   removeFromWatchlist,
-  sendChatMessage,
   searchStocks,
   getStockCollection,
+  sendChatMessage,
+  getChatHistory,
 };
 
 export default api;
-

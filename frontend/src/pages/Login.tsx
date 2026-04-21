@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login, setStoredUser } from "@/lib/api";
-import GradientText from "@/components/GradientText";
-import BorderGlow from "@/components/BorderGlow";
-import { LogIn, Eye, EyeOff, Mail, Lock, CreditCard } from "lucide-react";
+import { LogIn, Eye, EyeOff, Mail, Lock, CreditCard, Sparkles } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -27,132 +25,177 @@ const Login = () => {
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%", paddingLeft: "42px", paddingRight: "16px",
+    paddingTop: "13px", paddingBottom: "13px",
+    borderRadius: "14px", fontSize: "0.875rem",
+    background: "rgba(255,255,255,0.8)",
+    border: "1.5px solid rgba(196,168,255,0.3)",
+    color: "#3D2054", outline: "none",
+    fontFamily: "'Outfit', sans-serif",
+    boxSizing: "border-box", transition: "border-color 0.2s",
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        {/* Logo / Brand */}
-        <div className="text-center mb-8">
-          <GradientText
-            className="text-4xl font-bold mb-2"
-            colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-            animationSpeed={6}
-          >
-            Liminal AI
-          </GradientText>
-          <p className="text-sm text-[#9CA3AF]">
-            Intelligent portfolio analytics for fearless investing
+    <div style={{
+      minHeight: "100vh", display: "flex", alignItems: "center",
+      justifyContent: "center", padding: "16px",
+      background: "linear-gradient(135deg, #FDF6F0 0%, #FEF0F5 35%, #F5EEFE 70%, #EFF6FE 100%)",
+    }}>
+      {/* Background orbs */}
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "-5%", right: "10%", width: "400px", height: "400px", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,182,193,0.22) 0%, transparent 70%)" }} />
+        <div style={{ position: "absolute", bottom: "5%", left: "5%", width: "350px", height: "350px", borderRadius: "50%", background: "radial-gradient(circle, rgba(196,168,255,0.18) 0%, transparent 70%)" }} />
+      </div>
+
+      <div style={{ width: "100%", maxWidth: "420px", position: "relative", zIndex: 10 }}>
+        {/* Brand */}
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            width: "64px", height: "64px", borderRadius: "20px", marginBottom: "16px",
+            background: "linear-gradient(135deg, #F9A8C0, #C4A8FF)",
+            boxShadow: "0 8px 32px rgba(249,168,192,0.35)",
+          }}>
+            <Sparkles size={28} color="white" />
+          </div>
+          <h1 style={{
+            fontFamily: "'Outfit', sans-serif", fontSize: "2rem", fontWeight: 700,
+            background: "linear-gradient(135deg, #D4668A, #9B6DD1)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            marginBottom: "6px",
+          }}>Liminal AI</h1>
+          <p style={{ color: "#A07AAE", fontSize: "0.875rem", fontFamily: "'Outfit', sans-serif" }}>
+            Your trusted partner in fearless investing
           </p>
         </div>
 
-        {/* Login Card */}
-        <BorderGlow
-          className="w-full"
-          borderRadius={24}
-          glowColor="258 90 66"
-          colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
-          fillOpacity={0.3}
-        >
-          <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-10 rounded-xl bg-[#6366F1]/20 flex items-center justify-center">
-                <LogIn size={20} className="text-[#8B5CF6]" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Welcome Back</h2>
-                <p className="text-xs text-[#9CA3AF]">Sign in to your account</p>
+        {/* Card */}
+        <div style={{
+          background: "rgba(255,255,255,0.78)", backdropFilter: "blur(20px)",
+          borderRadius: "28px", border: "1.5px solid rgba(212,102,138,0.15)",
+          boxShadow: "0 20px 60px rgba(180,120,180,0.12), 0 4px 20px rgba(212,102,138,0.08)",
+          padding: "36px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+            <div style={{
+              width: "44px", height: "44px", borderRadius: "14px", flexShrink: 0,
+              background: "linear-gradient(135deg, rgba(249,168,192,0.2), rgba(196,168,255,0.2))",
+              border: "1px solid rgba(212,102,138,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <LogIn size={20} color="#C47ABE" />
+            </div>
+            <div>
+              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#3D2054" }}>
+                Welcome back
+              </h2>
+              <p style={{ fontSize: "0.75rem", color: "#A07AAE", fontFamily: "'Outfit', sans-serif" }}>Sign in to your account</p>
+            </div>
+          </div>
+
+          {error && (
+            <div style={{
+              marginBottom: "16px", padding: "12px 16px", borderRadius: "14px",
+              background: "rgba(255,100,100,0.08)", border: "1px solid rgba(255,100,100,0.2)",
+              color: "#D4668A", fontSize: "0.875rem", fontFamily: "'Outfit', sans-serif",
+            }}>{error}</div>
+          )}
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {/* Email */}
+            <div>
+              <label style={{ fontSize: "0.75rem", color: "#9B6DD1", fontWeight: 600, display: "block", marginBottom: "6px", fontFamily: "'Outfit', sans-serif" }}>
+                Email address
+              </label>
+              <div style={{ position: "relative" }}>
+                <Mail size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#C4A8D4" }} />
+                <input
+                  type="email" required value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="you@example.com" style={inputStyle}
+                  onFocus={(e) => e.target.style.borderColor = "rgba(196,168,255,0.7)"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(196,168,255,0.3)"}
+                />
               </div>
             </div>
 
-            {error && (
-              <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                {error}
+            {/* Password */}
+            <div>
+              <label style={{ fontSize: "0.75rem", color: "#9B6DD1", fontWeight: 600, display: "block", marginBottom: "6px", fontFamily: "'Outfit', sans-serif" }}>
+                Password
+              </label>
+              <div style={{ position: "relative" }}>
+                <Lock size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#C4A8D4" }} />
+                <input
+                  type={showPassword ? "text" : "password"} required value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  placeholder="••••••••"
+                  style={{ ...inputStyle, paddingRight: "44px" }}
+                  onFocus={(e) => e.target.style.borderColor = "rgba(196,168,255,0.7)"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(196,168,255,0.3)"}
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{
+                  position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer", color: "#C4A8D4",
+                }}>
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
-            )}
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email */}
-              <div>
-                <label className="text-xs text-[#9CA3AF] mb-1.5 block">Email</label>
-                <div className="relative">
-                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-[#9CA3AF]/50 focus:outline-none focus:border-[#6366F1]/50 focus:ring-1 focus:ring-[#6366F1]/30 transition-all"
-                  />
-                </div>
+            {/* PAN */}
+            <div>
+              <label style={{ fontSize: "0.75rem", color: "#9B6DD1", fontWeight: 600, display: "block", marginBottom: "6px", fontFamily: "'Outfit', sans-serif" }}>
+                PAN Card Number
+              </label>
+              <div style={{ position: "relative" }}>
+                <CreditCard size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#C4A8D4" }} />
+                <input
+                  type="text" required maxLength={10} value={form.pan_card}
+                  onChange={(e) => setForm({ ...form, pan_card: e.target.value.toUpperCase() })}
+                  placeholder="ABCDE1234F"
+                  style={{ ...inputStyle, letterSpacing: "0.1em", textTransform: "uppercase" }}
+                  onFocus={(e) => e.target.style.borderColor = "rgba(196,168,255,0.7)"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(196,168,255,0.3)"}
+                />
               </div>
+              <p style={{ fontSize: "0.68rem", color: "#C4A8D4", marginTop: "4px", fontFamily: "'Outfit', sans-serif" }}>
+                Required to decrypt your CAS portfolio securely
+              </p>
+            </div>
 
-              {/* Password */}
-              <div>
-                <label className="text-xs text-[#9CA3AF] mb-1.5 block">Password</label>
-                <div className="relative">
-                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    placeholder="••••••••"
-                    className="w-full pl-10 pr-11 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-[#9CA3AF]/50 focus:outline-none focus:border-[#6366F1]/50 focus:ring-1 focus:ring-[#6366F1]/30 transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-white transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
+            {/* Submit */}
+            <button type="submit" disabled={loading} style={{
+              width: "100%", padding: "14px", borderRadius: "14px",
+              border: "none", cursor: loading ? "not-allowed" : "pointer",
+              background: loading ? "rgba(196,168,255,0.4)" : "linear-gradient(135deg, #F9A8C0, #C4A8FF)",
+              color: "white", fontWeight: 700, fontSize: "0.9rem",
+              fontFamily: "'Outfit', sans-serif",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+              boxShadow: loading ? "none" : "0 8px 24px rgba(196,168,255,0.4)",
+              transition: "all 0.2s", marginTop: "4px",
+            }}>
+              {loading
+                ? <div style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "white", animation: "spin 0.8s linear infinite" }} />
+                : <><LogIn size={16} /> Sign In</>
+              }
+            </button>
+          </form>
 
-              {/* PAN Card */}
-              <div>
-                <label className="text-xs text-[#9CA3AF] mb-1.5 block">PAN Card Number</label>
-                <div className="relative">
-                  <CreditCard size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                  <input
-                    type="text"
-                    required
-                    maxLength={10}
-                    value={form.pan_card}
-                    onChange={(e) => setForm({ ...form, pan_card: e.target.value.toUpperCase() })}
-                    placeholder="ABCDE1234F"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-[#9CA3AF]/50 focus:outline-none focus:border-[#6366F1]/50 focus:ring-1 focus:ring-[#6366F1]/30 transition-all uppercase tracking-wider"
-                  />
-                </div>
-                <p className="text-[10px] text-[#9CA3AF]/60 mt-1">Required to decrypt your CAS portfolio</p>
-              </div>
+          <p style={{ textAlign: "center", fontSize: "0.875rem", color: "#A07AAE", marginTop: "24px", fontFamily: "'Outfit', sans-serif" }}>
+            New here?{" "}
+            <Link to="/signup" style={{ color: "#C47ABE", fontWeight: 700, textDecoration: "none" }}>
+              Create an account
+            </Link>
+          </p>
+        </div>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 rounded-xl neon-button text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <LogIn size={16} />
-                    Sign In
-                  </>
-                )}
-              </button>
-            </form>
-
-            <p className="text-center text-sm text-[#9CA3AF] mt-6">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-[#8B5CF6] hover:text-[#A78BFA] font-medium transition-colors">
-                Sign Up
-              </Link>
-            </p>
-          </div>
-        </BorderGlow>
+        <p style={{ textAlign: "center", marginTop: "18px", fontSize: "0.72rem", color: "#C4A8D4", fontFamily: "'Outfit', sans-serif" }}>
+          🔒 Your data is encrypted and never shared
+        </p>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

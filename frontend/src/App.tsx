@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnimatePresence } from "framer-motion";
 
-// Pages
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -20,7 +19,6 @@ import AppShell from "./components/AppShell";
 
 const queryClient = new QueryClient();
 
-/** Simple auth guard — checks for JWT token in localStorage */
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem("token");
   if (!token) return <Navigate to="/login" replace />;
@@ -32,11 +30,8 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
-        {/* Protected Routes Wrap */}
         <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/stock/:symbol" element={<StockDetail />} />
@@ -47,49 +42,47 @@ const AnimatedRoutes = () => {
           <Route path="/sandbox" element={<Sandbox />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/watchlist" element={<Dashboard />} />
-          {/* Legacy redirect */}
           <Route path="/analytics" element={<Navigate to="/portfolio" replace />} />
         </Route>
-
-        {/* Catch-all */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   );
 };
 
-import PixelBlast from "./components/PixelBlast";
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#1e1b4b] to-[#0B0914]">
-        {/* Global Background Layer */}
-        <div className="fixed inset-0 z-0">
-          <PixelBlast
-    variant="square"
-    pixelSize={4}
-    color="#B497CF"
-    patternScale={4.5}
-    patternDensity={1.25}
-    pixelSizeJitter={0}
-    enableRipples
-    rippleSpeed={0.4}
-    rippleThickness={0.12}
-    rippleIntensityScale={1.5}
-    liquid={false}
-    liquidStrength={0.12}
-    liquidRadius={1.2}
-    liquidWobbleSpeed={5}
-    speed={0.65}
-    edgeFade={0.26}
-    transparent
-          />
+      <div className="relative min-h-screen overflow-hidden" style={{
+        background: "linear-gradient(135deg, #FDF6F0 0%, #FEF0F5 35%, #F5EEFE 70%, #EFF6FE 100%)",
+      }}>
+        {/* Soft decorative orbs */}
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+          <div style={{
+            position: "absolute", top: "-10%", right: "-5%",
+            width: "600px", height: "600px", borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(255,182,193,0.18) 0%, transparent 70%)",
+          }} />
+          <div style={{
+            position: "absolute", bottom: "10%", left: "-10%",
+            width: "500px", height: "500px", borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(196,168,255,0.15) 0%, transparent 70%)",
+          }} />
+          <div style={{
+            position: "absolute", top: "40%", left: "40%",
+            width: "400px", height: "400px", borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(255,218,230,0.12) 0%, transparent 70%)",
+          }} />
         </div>
 
-        {/* Global Content Layer */}
+        {/* Subtle dot pattern */}
+        <div className="fixed inset-0 z-0 pointer-events-none" style={{
+          backgroundImage: `radial-gradient(circle, rgba(219,112,147,0.06) 1px, transparent 1px)`,
+          backgroundSize: "32px 32px",
+        }} />
+
         <div className="relative z-10 h-full w-full">
           <BrowserRouter>
             <AnimatedRoutes />

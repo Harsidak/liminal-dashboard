@@ -8,7 +8,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Search, TrendingUp, TrendingDown, Clock, Newspaper, ArrowRight, Activity, Zap } from "lucide-react";
 
-const SearchBar = ({ navigate }: { navigate: any }) => {
+const SearchBar = ({ navigate, activeListId, fetchWatchlistItems }: { 
+  navigate: any, 
+  activeListId: string | null,
+  fetchWatchlistItems: (id: string) => Promise<void>
+}) => {
   const [val, setVal] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -51,19 +55,32 @@ const SearchBar = ({ navigate }: { navigate: any }) => {
       {isOpen && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-[#161427]/95 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {results.map((r) => (
-            <button
-              key={r.symbol}
-              onClick={() => navigate(`/stock/${r.symbol}`)}
-              className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors text-left border-b border-white/5 last:border-none"
-            >
-              <div>
+            <div key={r.symbol} className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors border-b border-white/5 last:border-none">
+              <button onClick={() => navigate(`/stock/${r.symbol}`)} className="flex flex-col text-left flex-1">
                 <p className="text-sm font-bold text-white">{r.symbol}</p>
                 <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{r.name}</p>
-              </div>
-              <div className="text-right">
+              </button>
+              <div className="flex items-center gap-2 ml-2">
                 <span className="text-[10px] uppercase font-bold text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded">{r.exch}</span>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (!activeListId) { alert("Create a watchlist first!"); return; }
+                    try {
+                      await api.addToWatchlist(r.symbol, activeListId);
+                      if (fetchWatchlistItems) await fetchWatchlistItems(activeListId);
+                      setIsOpen(false);
+                      setVal("");
+                    } catch {
+                      alert("Already in watchlist or failed to add.");
+                    }
+                  }}
+                  className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 hover:bg-emerald-400/20 px-2 py-0.5 rounded border border-emerald-400/20 transition-colors whitespace-nowrap"
+                >
+                  + Add
+                </button>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       )}
@@ -155,7 +172,7 @@ const WatchlistSection = ({
       {/* Items Grid */}
       {items.length === 0 ? (
         <div className="glass rounded-2xl p-10 text-center border-dashed border-white/10">
-          <p className="text-[#9CA3AF] text-sm mb-4">This watchlist is empty. Add some stocks to track them!</p>
+          <p className="text-[#9CA3AF] text-sm mb-4">This watchlist is empty. Search for a stock above and click <span className="text-emerald-400 font-bold">+ Add</span> to track it!</p>
           <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold font-mono">Tip: Use the search bar above to find and add stocks</p>
         </div>
       ) : (
@@ -327,7 +344,11 @@ const Dashboard = () => {
     <PageTransition>
       <div className="pt-2 pb-10">
 
-        <SearchBar navigate={navigate} />
+        <SearchBar 
+          navigate={navigate}
+          activeListId={activeListId}
+          fetchWatchlistItems={fetchWatchlistItems}
+        />
 
         {/* Market Snapshot Index Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
@@ -412,10 +433,10 @@ const Dashboard = () => {
                       <h4 className="text-sm font-semibold text-white group-hover:text-[#8B5CF6] transition-colors leading-snug line-clamp-2">{item.title}</h4>
                     </a>
                   ))}
-                    {news.length === 0 && <p className="text-sm text-[#9CA3AF]">Loading news...</p>}
-                  </div>
+                  {news.length === 0 && <p className="text-sm text-[#9CA3AF]">Loading news...</p>}
                 </div>
-              </BorderGlow>
+              </div>
+            </BorderGlow>
           </div>
         </div>
       </div>
